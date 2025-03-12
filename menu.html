@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню — Бизнес-класс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1a2a44;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            color: #d4af37;
+            margin: 20px 0;
+            font-size: 2.2em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .menu {
+            background: #2c3e50;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+            transition: transform 0.3s ease;
+        }
+        .menu:hover {
+            transform: translateY(-5px);
+        }
+        .menu h3 {
+            color: #d4af37;
+            font-size: 1.8em;
+            border-bottom: 2px solid #d4af37;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .menu h4 {
+            color: #ffffff;
+            font-size: 1.4em;
+            margin: 20px 0 10px;
+            padding: 20px 0 0 20px
+        }
+        .menu-item-container label {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background: #34495e;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .menu-item-container label:hover {
+            background: #3e5a74;
+            transform: translateX(5px);
+        }
+        .menu-item-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .subitems {
+            margin-left: 20px;
+            display: none; /* Подпункты скрыты по умолчанию */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .menu-item-container.active .subitems {
+            display: block; /* Подпункты отображаются при активации */
+            opacity: 1;
+        }
+        .selected-subitems {
+            margin-left: 20px;
+            color: #d4af37;
+            font-style: italic;
+        }
+        .buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #1e88e5;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+        }
+        .save-button {
+            padding: 12px 30px;
+        }
+        .settings-button {
+            top: 20px;
+            right: 20px;
+            background: #455a64;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-button:hover {
+            background: #37474f;
+            transform: scale(1.1);
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2c3e50;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #fff;
+        }
+        .modal h3 {
+            color: #d4af37;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        .editor-section {
+            margin-bottom: 20px;
+        }
+        .editor-section h4 {
+            color: #ffffff;
+            margin: 10px 0;
+        }
+        .editor-section input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #455a64;
+            border-radius: 6px;
+            background: #34495e;
+            color: #fff;
+            width: 100%;
+        }
+        .editor-section .btn {
+            padding: 5px 10px;
+        }
+        .modal-button.close-button {
+            background: #d32f2f;
+        }
+        .modal-button.close-button:hover { background: #b71c1c; }
+    </style>
+</head>
+<body>
+    <h1>Меню — Бизнес-класс</h1>
+    <button class="settings-button btn" onclick="openSettingsModal()">⚙️</button>
+    <div class="menu" id="menu">
+        <h3>Место: <span contenteditable="true" id="seat-number"></span></h3>
+    </div>
+    <div class="buttons">
+        <button class="save-button btn" id="save-button" onclick="saveChanges()">Сохранить</button>
+    </div>
+
+    <div class="modal" id="settings-modal" style="display: none;">
+        <h3>Редактор меню</h3>
+        <div id="editor-sections"></div>
+        <h4>Общие подпункты</h4>
+        <div id="global-subitems"></div>
+        <button class="btn" onclick="addSection()">Добавить раздел</button>
+        <button class="btn" onclick="addGlobalSubItem()">+ Добавить подпункт</button>
+        <button class="btn" onclick="saveMenuSettings()">Сохранить настройки</button>
+        <button class="btn modal-button close-button" onclick="closeSettingsModal()">Закрыть</button>
+    </div>
+
+    <script>
+        const menuContainer = document.getElementById('menu');
+        const editorSections = document.getElementById('editor-sections');
+        const globalSubItemsContainer = document.getElementById('global-subitems');
+        const currentSeat = localStorage.getItem('currentSeat') || 'Не выбрано';
+        document.getElementById('seat-number').textContent = currentSeat;
+        let savedMenu = JSON.parse(localStorage.getItem(`menu_${currentSeat}`)) || {};
+
+        function openSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'block';
+            loadEditorSections();
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function addSection() {
+            const sectionId = `section-${Date.now()}`;
+            editorSections.insertAdjacentHTML('beforeend', `
+                <div class="editor-section" id="${sectionId}">
+                    <input type="text" placeholder="Название раздела" id="${sectionId}-name">
+                    <div id="${sectionId}-items"></div>
+                    <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
+                    <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
+                </div>
+            `);
+        }
+
+        function addItem(sectionId) {
+            const itemId = `item-${Date.now()}`;
+            document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
+                <div class="menu-item" id="${itemId}">
+                    <input type="text" placeholder="Название пункта" id="${itemId}-name">
+                    <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
+                </div>
+            `);
+        }
+
+        function addGlobalSubItem() {
+            const subItemId = `subitem-${Date.now()}`;
+            globalSubItemsContainer.insertAdjacentHTML('beforeend', `
+                <div class="global-subitem" id="${subItemId}">
+                    <input type="text" placeholder="Название подпункта" id="${subItemId}-name">
+                    <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
+                </div>
+            `);
+        }
+
+        function loadEditorSections() {
+            const savedSettings = JSON.parse(localStorage.getItem('menuSettings')) || { sections: {}, subitems: [] };
+            editorSections.innerHTML = '';
+            globalSubItemsContainer.innerHTML = '';
+
+            Object.keys(savedSettings.sections).forEach((sectionName, index) => {
+                const sectionId = `section-${Date.now()}-${index}`;
+                editorSections.insertAdjacentHTML('beforeend', `
+                    <div class="editor-section" id="${sectionId}">
+                        <input type="text" value="${sectionName}" id="${sectionId}-name">
+                        <div id="${sectionId}-items"></div>
+                        <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
+                        <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
+                    </div>
+                `);
+                savedSettings.sections[sectionName].forEach(item => {
+                    const itemId = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
+                        <div class="menu-item" id="${itemId}">
+                            <input type="text" value="${item}" id="${itemId}-name">
+                            <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
+                        </div>
+                    `);
+                });
+            });
+
+            savedSettings.subitems.forEach((subitem, index) => {
+                const subItemId = `subitem-${Date.now()}-${index}`;
+                globalSubItemsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="global-subitem" id="${subItemId}">
+                        <input type="text" value="${subitem}" id="${subItemId}-name">
+                        <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
+                    </div>
+                `);
+            });
+        }
+
+        function saveMenuSettings() {
+            const menuSettings = { sections: {}, subitems: [] };
+            document.querySelectorAll('.editor-section').forEach(section => {
+                const sectionName = section.querySelector('input').value;
+                const items = Array.from(section.querySelectorAll('.menu-item input')).map(input => input.value);
+                if (sectionName && items.length) menuSettings.sections[sectionName] = items;
+            });
+            menuSettings.subitems = Array.from(globalSubItemsContainer.querySelectorAll('input')).map(input => input.value);
+            localStorage.setItem('menuSettings', JSON.stringify(menuSettings));
+            closeSettingsModal();
+            updateMenu();
+        }
+
+        function updateMenu() {
+            const menuSettings = JSON.parse(localStorage.getItem('menuSettings')) || { sections: {}, subitems: [] };
+            menuContainer.innerHTML = `<h3>Место: <span contenteditable="true" id="seat-number">${currentSeat}</span></h3>`;
+            Object.keys(menuSettings.sections).forEach(sectionName => {
+                menuContainer.innerHTML += `<h4>${sectionName}</h4>`;
+                menuSettings.sections[sectionName].forEach(item => {
+                    const isChecked = savedMenu[item]?.checked ? 'checked' : '';
+                    const selectedSubitems = savedMenu[item]?.subitems || [];
+                    menuContainer.innerHTML += `
+                        <div class="menu-item-container" data-item="${item}">
+                            <label class="main-label"><input type="checkbox" ${isChecked}> ${item}</label>
+                            <div class="subitems">
+                                ${menuSettings.subitems.map(sub => `
+                                    <label><input type="checkbox" ${selectedSubitems.includes(sub) ? 'checked' : ''} onchange="toggleSubitem(this, '${item}', '${sub}')"> ${sub}</label>
+                                `).join('')}
+                            </div>
+                            <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
+                        </div>
+                    `;
+                });
+            });
+
+            // Привязываем обработчики для зажатия
+            attachHoldListeners();
+        }
+
+        function attachHoldListeners() {
+            document.querySelectorAll('.menu-item-container').forEach(container => {
+                let holdTimeout;
+
+                // Обработчик начала зажатия
+                container.addEventListener('mousedown', () => {
+                    holdTimeout = setTimeout(() => {
+                        container.classList.toggle('active'); // Переключаем видимость подпунктов
+                    }, 500); // Задержка перед переключением (500 мс)
+                });
+
+                // Обработчик отпускания
+                container.addEventListener('mouseup', () => {
+                    clearTimeout(holdTimeout); // Отменяем таймер, если пользователь отпустил раньше
+                });
+
+                // Обработчик для мобильных устройств (touch events)
+                container.addEventListener('touchstart', () => {
+                    holdTimeout = setTimeout(() => {
+                        container.classList.toggle('active'); // Переключаем видимость подпунктов
+                    }, 500); // Задержка перед переключением (500 мс)
+                });
+
+                container.addEventListener('touchend', () => {
+                    clearTimeout(holdTimeout); // Отменяем таймер, если пользователь отпустил раньше
+                });
+            });
+        }
+
+        function toggleSubitem(checkbox, itemName, subitemText) {
+            const container = checkbox.closest('.menu-item-container');
+            const selectedSubitemsDiv = container.querySelector('.selected-subitems');
+            savedMenu[itemName] = savedMenu[itemName] || { subitems: [] };
+
+            if (checkbox.checked) {
+                savedMenu[itemName].subitems.push(subitemText);
+                selectedSubitemsDiv.insertAdjacentHTML('beforeend', `<div>${subitemText}</div>`);
+            } else {
+                savedMenu[itemName].subitems = savedMenu[itemName].subitems.filter(sub => sub !== subitemText);
+                Array.from(selectedSubitemsDiv.children).forEach(el => {
+                    if (el.textContent === subitemText) el.remove();
+                });
+            }
+        }
+
+        function saveChanges() {
+            const menuData = {};
+            document.querySelectorAll('.menu-item-container').forEach(container => {
+                const itemName = container.getAttribute('data-item');
+                const checkbox = container.querySelector('.main-label input');
+                const subitems = Array.from(container.querySelectorAll('.subitems input:checked')).map(cb => cb.nextSibling.textContent.trim());
+                menuData[itemName] = {
+                    checked: checkbox.checked,
+                    subitems: subitems
+                };
+            });
+            localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(menuData));
+
+            let savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+            if (!savedSeats.includes(currentSeat)) {
+                savedSeats.push(currentSeat);
+                localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
+            }
+
+            let selectedSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
+            selectedSeats = selectedSeats.filter(seat => seat !== currentSeat);
+            localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+
+            alert('Изменения сохранены!');
+            window.location.href = 'edit.html';
+        }
+
+        updateMenu();
+    </script>
+</body>
+</html>

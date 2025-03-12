@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление местами — Бизнес-класс</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1a2a44;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            color: #d4af37;
+            margin: 20px 0;
+            font-size: 2.5em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px 20px 0 20px;
+            background: #2c3e50;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+        }
+        .left-column, .right-column {
+            flex: 1;
+            margin: 10px;
+            padding: 20px;
+            background: #34495e;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .seat {
+            padding: 12px;
+            margin: 8px 0;
+            background: #1e88e5;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            color: #fff;
+            font-weight: 500;
+        }
+        .seat:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+        }
+        .selected-seat {
+            background: #d4af37;
+            color: #1a2a44;
+        }
+        .saved-seat {
+            background: #43a047;
+            color: #fff;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            flex-direction: row-reverse;
+            text-align: center;
+            margin: 20px 0 0 0;
+        }
+        .btn {
+            padding: 12px 25px;
+            cursor: pointer;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .next-button { background: #1e88e5; }
+        .next-button:hover { background: #1565c0; }
+        .view-all-orders-button { background: #d32f2f; }
+        .view-all-orders-button:hover { background: #b71c1c; }
+        .reset-button { background: #ff5722; }
+        .reset-button:hover { background: #e64a19; }
+        .add-button { background: #0288d1; }
+        .add-button:hover { background: #0277bd; }
+        .settings-button {
+            background: #455a64;
+            font-size: 1.2em;
+            padding: 10px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-button:hover {
+            background: #37474f;
+            transform: scale(1.1);
+        }
+        .orders-modal, .settings-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2c3e50;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #fff;
+        }
+        .orders-modal h3, .settings-modal h3 {
+            color: #d4af37;
+            margin-top: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        .orders-modal ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .orders-modal ul li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #34495e;
+            border-radius: 6px;
+        }
+        .modal-button.btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #1e88e5;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .modal-button.btn:hover { background: #1565c0; }
+        .modal-button.close-button { background: #d32f2f; }
+        .modal-button.close-button:hover { background: #b71c1c; }
+        .settings-modal input {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #455a64;
+            border-radius: 6px;
+            background: #34495e;
+            color: #fff;
+            width: 100%;
+        }
+        .settings-modal label {
+            margin: 10px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Управление местами — Бизнес-класс</h1>
+    <div class="main-container">
+        <div class="left-column" id="left-column"></div>
+        <div class="right-column" id="right-column"></div>
+    </div>
+    <div class="buttons">
+        <button class="settings-button btn" id="settings-button" onclick="openSettingsModal()">⚙️</button>
+        <button class="reset-button btn" id="reset-button" onclick="resetAll()">Сбросить</button>
+        <button class="add-button btn" id="add-button" onclick="addSeat()">Добавить место</button>
+
+    </div>
+    <div class="buttons">
+        <button class="view-all-orders-button btn" onclick="viewAllOrders()">Показать все заказы</button>
+
+        <button class="next-button btn" id="next-button" onclick="nextStep()">Далее</button>
+    </div>
+
+    <div class="orders-modal" id="orders-modal" style="display: none;">
+        <h3>Все заказы</h3>
+        <ul id="all-orders-list"></ul>
+        <button class="modal-button btn" onclick="shareOrders('telegram')">Поделиться в Telegram</button>
+        <button class="modal-button btn" onclick="shareOrders('whatsapp')">Поделиться в WhatsApp</button>
+        <button class="modal-button btn close-button" onclick="closeOrdersModal()">Закрыть</button>
+    </div>
+
+    <div class="settings-modal" id="settings-modal" style="display: none;">
+        <h3>Настройки нумерации</h3>
+        <input type="text" id="seat-letters" placeholder="Порядок букв для мест (через запятую, например, A,C,F,D)">
+        <input type="number" id="start-row" placeholder="Начальный номер ряда (например, 1)">
+        <label>
+            <input type="checkbox" id="use-letters" checked> Использовать буквы
+        </label>
+        <button class="modal-button btn" onclick="applySettings()">Сохранить</button>
+        <button class="modal-button btn close-button" onclick="closeSettingsModal()">Закрыть</button>
+    </div>
+
+    <script>
+        const leftColumn = document.getElementById('left-column');
+        const rightColumn = document.getElementById('right-column');
+        const ordersModal = document.getElementById('orders-modal');
+        const allOrdersList = document.getElementById('all-orders-list');
+        const settingsModal = document.getElementById('settings-modal');
+        const seatLettersInput = document.getElementById('seat-letters');
+        const startRowInput = document.getElementById('start-row');
+        const useLettersCheckbox = document.getElementById('use-letters');
+
+        let selectedSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
+        let seatLetters = ['A', 'C', 'F', 'D'];
+        let startRow = 1;
+        let seatCounter = 0;
+        let useLetters = true;
+
+        function loadSeats() {
+            const savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+            leftColumn.innerHTML = '';
+            rightColumn.innerHTML = '';
+
+            savedSeats.forEach(seat => {
+                const savedMenu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
+                const hasOrder = Object.values(savedMenu).some(item => item.checked);
+                const seatElement = document.createElement('div');
+                seatElement.setAttribute('data-seat', seat);
+                seatElement.textContent = seat + (hasOrder ? ' (Сохранено)' : '');
+
+                if (selectedSeats.includes(seat)) {
+                    seatElement.className = 'seat selected-seat';
+                    rightColumn.appendChild(seatElement);
+                } else {
+                    seatElement.className = 'seat' + (hasOrder ? ' saved-seat' : '');
+                    leftColumn.appendChild(seatElement);
+                }
+            });
+        }
+
+        function viewAllOrders() {
+            const savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+            allOrdersList.innerHTML = '';
+
+            savedSeats.forEach(seat => {
+                const savedMenu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
+                let hasItems = false;
+                let orderDetails = [];
+
+                Object.keys(savedMenu).forEach(item => {
+                    if (savedMenu[item].checked) {
+                        hasItems = true;
+                        orderDetails.push(item);
+                        if (savedMenu[item].subitems && savedMenu[item].subitems.length > 0) {
+                            savedMenu[item].subitems.forEach(sub => orderDetails.push(`  - ${sub}`));
+                        }
+                    }
+                });
+
+                if (hasItems) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<strong>Место ${seat}:</strong><br>${orderDetails.join('<br>')}`;
+                    allOrdersList.appendChild(listItem);
+                }
+            });
+
+            ordersModal.style.display = 'block';
+        }
+
+        function closeOrdersModal() {
+            ordersModal.style.display = 'none';
+        }
+
+        function shareOrders(platform) {
+            const savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+            let ordersText = 'Список заказов:\n\n';
+
+            savedSeats.forEach(seat => {
+                const savedMenu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
+                let hasItems = false;
+                let orderDetails = [];
+
+                Object.keys(savedMenu).forEach(item => {
+                    if (savedMenu[item].checked) {
+                        hasItems = true;
+                        orderDetails.push(item);
+                        if (savedMenu[item].subitems && savedMenu[item].subitems.length > 0) {
+                            orderDetails.push(...savedMenu[item].subitems.map(sub => `  - ${sub}`));
+                        }
+                    }
+                });
+
+                if (hasItems) {
+                    ordersText += `Место ${seat}:\n${orderDetails.join('\n')}\n\n`;
+                }
+            });
+
+            const encodedText = encodeURIComponent(ordersText);
+            if (platform === 'telegram') {
+                window.open(`https://t.me/share/url?url=${encodeURIComponent('Список заказов')}&text=${encodedText}`, '_blank');
+            } else if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
+            }
+        }
+
+        function handleSeatClick(event) {
+            const seat = event.target;
+            const seatNumber = seat.getAttribute('data-seat');
+
+            if (seat.parentElement === leftColumn) {
+                const selectedSeat = document.createElement('div');
+                selectedSeat.className = 'seat selected-seat';
+                selectedSeat.setAttribute('data-seat', seatNumber);
+                selectedSeat.textContent = seatNumber;
+                rightColumn.appendChild(selectedSeat);
+                seat.remove();
+                selectedSeats.push(seatNumber);
+            } else if (seat.parentElement === rightColumn) {
+                const originalSeat = document.createElement('div');
+                originalSeat.className = 'seat';
+                originalSeat.setAttribute('data-seat', seatNumber);
+                originalSeat.textContent = seatNumber;
+                const savedMenu = JSON.parse(localStorage.getItem(`menu_${seatNumber}`)) || {};
+                const hasOrder = Object.values(savedMenu).some(item => item.checked);
+                if (hasOrder) {
+                    originalSeat.classList.add('saved-seat');
+                    originalSeat.textContent += ' (Сохранено)';
+                }
+                leftColumn.appendChild(originalSeat);
+                seat.remove();
+                selectedSeats = selectedSeats.filter(s => s !== seatNumber);
+            }
+
+            localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+        }
+
+        leftColumn.addEventListener('click', handleSeatClick);
+        rightColumn.addEventListener('click', handleSeatClick);
+
+        function nextStep() {
+            if (selectedSeats.length === 0) {
+                alert('Пожалуйста, выберите хотя бы одно место!');
+                return;
+            }
+            window.location.href = 'edit.html';
+        }
+
+        function resetAll() {
+    if (confirm('Вы уверены, что хотите сбросить все заказы? Это действие нельзя отменить.')) {
+        // Получаем список всех мест
+        const savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+
+        // Удаляем заказы для всех мест
+        savedSeats.forEach(seat => {
+            localStorage.removeItem(`menu_${seat}`);
+        });
+
+        // Очищаем выбранные места
+        localStorage.removeItem('selectedSeats');
+        selectedSeats = [];
+
+        // Перезагружаем страницу
+        window.location.reload();
+    }
+}
+
+        function addSeat() {
+            const savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
+            let seatNumber;
+
+            do {
+                const row = startRow + Math.floor(seatCounter / (useLetters ? seatLetters.length : 1));
+                const letter = useLetters ? seatLetters[seatCounter % seatLetters.length] : '';
+                seatNumber = useLetters ? `${row}${letter}` : `${row}`;
+                seatCounter++;
+            } while (savedSeats.includes(seatNumber));
+
+            const seatElement = document.createElement('div');
+            seatElement.className = 'seat';
+            seatElement.setAttribute('data-seat', seatNumber);
+            seatElement.textContent = seatNumber;
+            leftColumn.appendChild(seatElement);
+
+            savedSeats.push(seatNumber);
+            localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
+        }
+
+        function openSettingsModal() {
+            seatLettersInput.value = seatLetters.join(',');
+            startRowInput.value = startRow;
+            useLettersCheckbox.checked = useLetters;
+            seatLettersInput.disabled = !useLetters;
+            settingsModal.style.display = 'block';
+        }
+
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+
+        function applySettings() {
+            const letters = seatLettersInput.value.split(',');
+            const row = parseInt(startRowInput.value);
+            useLetters = useLettersCheckbox.checked;
+
+            if (letters.length > 0 && !isNaN(row)) {
+                seatLetters = letters;
+                startRow = row;
+                seatCounter = 0;
+                leftColumn.innerHTML = '';
+                rightColumn.innerHTML = '';
+                loadSeats();
+            }
+            closeSettingsModal();
+        }
+
+        useLettersCheckbox.addEventListener('change', () => {
+            seatLettersInput.disabled = !useLettersCheckbox.checked;
+        });
+
+        loadSeats();
+    </script>
+</body>
+</html>
