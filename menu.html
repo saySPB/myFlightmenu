@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -921,59 +921,57 @@
         }
 
         function handleCustomSubitemKeypress(event, input) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Предотвращаем стандартное поведение
-            
-            const subitemText = input.value.trim();
-            if (subitemText) {
-                const item = input.dataset.item;
-                const seat = input.dataset.seat;
-                const sectionName = input.dataset.section;
-                
-                // Сохраняем текущее состояние фокуса и позицию курсора
-                const isFocused = document.activeElement === input;
-                const cursorPos = input.selectionStart;
-                
-                const menuData = savedMenus[seat] || {};
-                menuData[item] = menuData[item] || { subitems: [], section: sectionName };
+    if (event.key === 'Enter') {
+        event.preventDefault();
 
-                if (!menuData[item].subitems.includes(subitemText)) {
-                    menuData[item].subitems.push(subitemText);
-                    
-                    // Обновляем только нужные элементы, а не весь интерфейс
-                    const container = input.closest('.menu-item-container');
-                    if (container) {
-                        const selectedSubitemsDiv = container.querySelector('.selected-subitems');
-                        if (selectedSubitemsDiv) {
-                            selectedSubitemsDiv.innerHTML = menuData[item].subitems.map(sub => `<div>${sub}</div>`).join('');
-                        }
-                    }
+        const subitemText = input.value.trim();
+        if (!subitemText) return;
 
-                    const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-                    if (!cycleData.subitems[item]) cycleData.subitems[item] = [];
-                    if (!cycleData.subitems[item].includes(subitemText)) {
-                        cycleData.subitems[item].push(subitemText);
-                        menuData[selectedCycle] = cycleData;
-                        localStorage.setItem('menuData', JSON.stringify(menuData));
-                    }
+        const item = input.dataset.item;
+        const seat = input.dataset.seat;
+        const sectionName = input.dataset.section;
+
+        const isFocused = document.activeElement === input;
+        const cursorPos = input.selectionStart;
+
+        const menuData = savedMenus[seat] || {};
+        menuData[item] = menuData[item] || { subitems: [], section: sectionName };
+
+        if (!menuData[item].subitems.includes(subitemText)) {
+            menuData[item].subitems.push(subitemText);
+
+            const container = input.closest('.menu-item-container');
+            if (container) {
+                const selectedSubitemsDiv = container.querySelector('.selected-subitems');
+                if (selectedSubitemsDiv) {
+                    selectedSubitemsDiv.innerHTML = menuData[item].subitems.map(sub => `<div>${sub}</div>`).join('');
                 }
-                
-                savedMenus[seat] = menuData;
-                input.value = '';
-                
-                // Восстанавливаем фокус и позицию курсора
-                if (isFocused) {
-                    setTimeout(() => {
-                        input.focus();
-                        input.setSelectionRange(cursorPos, cursorPos);
-                    }, 0);
-                }
-                
-                // Сохраняем изменения без полного обновления интерфейса
-                localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+            }
+
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            if (!Array.isArray(cycleData.subitems[item])) {
+                cycleData.subitems[item] = [];
+            }
+            if (!cycleData.subitems[item].includes(subitemText)) {
+                cycleData.subitems[item].push(subitemText);
+                menuData[selectedCycle] = cycleData;
+                localStorage.setItem('menuData', JSON.stringify(menuData));
             }
         }
+
+        savedMenus[seat] = menuData;
+        input.value = '';
+
+        if (isFocused && input.tagName === 'INPUT' && input.type === 'text') {
+            setTimeout(() => {
+                input.focus();
+                input.setSelectionRange(cursorPos, cursorPos);
+            }, 0);
+        }
+
+        localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
     }
+}
 
         function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
             const menuData = savedMenus[currentSeat] || {};
