@@ -6,509 +6,838 @@
     <title>Меню — Бизнес-класс</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #1a2a44;
-            --text-color: #ffffff;
-            --card-bg: #2c3e50;
-            --item-bg: #34495e;
-            --accent-color: #d4af37;
-            --btn-primary: #1e88e5;
-            --btn-primary-hover: #1565c0;
-            --btn-danger: #d32f2f;
-            --btn-danger-hover: #b71c1c;
-            --border-color: #455a64;
-        }
-        body.light-theme {
-            --bg-color: #f5f5f5;
-            --text-color: #333333;
-            --card-bg: #ffffff;
-            --item-bg: #e0e0e0;
-            --accent-color: #d4af37;
-            --btn-primary: #1e88e5;
-            --btn-primary-hover: #1565c0;
-            --btn-danger: #d32f2f;
-            --btn-danger-hover: #b71c1c;
-            --border-color: #bdbdbd;
-        }
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Open Sans', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            transition: background 0.3s ease, color 0.3s ease;
-            -webkit-text-size-adjust: 100%;
-            text-size-adjust: 100%;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .header-content {
-            display: flex;
-            width: 100%;
-            align-items: center;
-            justify-content: space-around;
-        }
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        h1 {
-            font-family: 'Playfair Display', serif;
-            text-align: center;
-            color: var(--accent-color);
-            margin: 0 10px;
-            font-size: 2.2em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex-grow: 1;
-        }
-        .food-counter {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            margin: 20px 0;
-        }
-        .food-counter-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: var(--item-bg);
-            padding: 8px 12px;
-            border-radius: 6px;
-            min-width: 80px;
-            position: relative;
-        }
-        .food-counter-item span {
-            font-size: 1.2em;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-        .food-counter-item div {
-            font-size: 0.9em;
-            text-align: center;
-            max-width: 100px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .food-counter-item:hover .tooltip {
-            display: block;
-        }
-        .tooltip {
-            display: none;
-            position: absolute;
-            top: -40px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 1000;
-            max-width: 200px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            white-space: normal;
-        }
-        .seat-navigation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-            gap: 20px;
-        }
-        .nav-button {
-            padding: 10px 20px;
-            background: var(--btn-primary);
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .nav-button:hover {
-            background: var(--btn-primary-hover);
-            transform: translateY(-2px);
-        }
-        .nav-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
-        #seat-counter {
-            font-size: 1.2em;
-            color: var(--accent-color);
-        }
-        .tabs {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        .tab {
-            padding: 10px 20px;
-            background: var(--item-bg);
-            border-radius: 6px;
-            margin: 0 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .tab.active {
-            background: var(--accent-color);
-            color: var(--bg-color);
-        }
-        .tab:hover {
-            background: #3e5a74;
-        }
-        .menu-container {
-            display: flex;
-            width: 100%;
-            max-width: 1200px;
-            margin: 20px;
-            justify-content: space-between;
-        }
-        .menu-seat {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 20px;
-            width: 48%;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
-        }
-        .menu-seat:hover {
-            transform: translateY(-5px);
-        }
-        .menu-seat h3 {
-            color: var(--accent-color);
-            font-size: 1.8em;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-        .menu-seat h4 {
-            color: var(--text-color);
-            font-size: 1.4em;
-            margin: 20px 0 10px;
-            padding: 0;
-        }
-        .menu-item-container {
-            position: relative;
-        }
-        .menu-item-container label {
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            background: var(--item-bg);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-        .menu-item-container label:hover {
-            background: #3e5a74;
-            transform: translateX(5px);
-        }
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        input[type="checkbox"]:active {
-            transform: scale(0.9);
-            box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
-        }
-        .main-label, .subitem-label {
-            position: relative;
-            padding: 10px 15px;
-            display: flex;
-            align-items: center;
-        }
-        .item-text, .subitem-label {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-        .subitems {
-            margin-left: 20px;
-            display: none;
-            opacity: 0;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-        }
-        .menu-item-container.active .subitems {
-            display: block;
-            opacity: 1;
-            max-height: 500px;
-        }
-        .selected-subitems {
-            margin-left: 20px;
-            color: var(--accent-color);
-            font-style: italic;
-        }
-        .btn {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: var(--btn-primary);
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin: 5px;
-            text-transform: uppercase;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .btn:hover {
-            background: var(--btn-primary-hover);
-            transform: translateY(-2px);
-        }
-        .save-button {
-            padding: 12px 30px;
-        }
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 999;
-            display: none;
-        }
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-            z-index: 1000;
-            max-width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            color: var(--text-color);
-        }
-        .modal h3 {
-            color: var(--accent-color);
-            margin-top: 0;
-            font-size: 1.8em;
-        }
-        .editor-section {
-            margin-bottom: 20px;
-        }
-        .editor-section input {
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--item-bg);
-            color: var(--text-color);
-            width: 100%;
-        }
-        .editor-section .btn {
-            padding: 5px 10px;
-        }
-        .modal-button.close-button {
-            background: var(--btn-danger);
-        }
-        .modal-button.close-button:hover {
-            background: var(--btn-danger-hover);
-        }
-        .back-button {
-            background: var(--btn-primary);
-            font-size: 1.5em;
-            padding: 5px 10px;
-            border-radius: 6px;
-            width: auto;
-            height: auto;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-        }
-        .back-button:hover {
-            background: var(--btn-primary-hover);
-            transform: scale(1.1);
-        }
-        .passenger-name-container {
-            margin: 10px 0;
-            padding: 10px;
-            background: var(--card-bg);
-            border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-        .passenger-name-container:hover {
-            transform: translateY(-2px);
-            background: var(--item-bg);
-        }
-        .passenger-name-container label {
-            margin-right: 10px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-family: 'Open Sans', sans-serif;
-            white-space: nowrap;
-        }
-        .passenger-name {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--item-bg);
-            color: var(--text-color);
-            width: 200px;
-            font-family: 'Open Sans', sans-serif;
-            transition: all 0.3s ease;
-            font-size: 1em;
-        }
-        .passenger-name:focus {
-            border-color: var(--accent-color);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
-        }
-        .passenger-name.saved {
-            border-color: var(--accent-color) !important;
-            transition: border-color 0.3s ease;
-        }
-        .custom-subitem-input {
-            position: relative;
-            z-index: 1;
-            background: var(--item-bg);
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            width: calc(100% - 18px);
-            font-size: 1em;
-            transition: none;
-        }
-        @media (max-width: 768px) {
-            .menu-container {
-                flex-direction: row;
-                justify-content: space-between;
-                margin: 10px;
-            }
-            .menu-seat {
-                width: 48%;
-                padding: 15px;
-                margin-bottom: 0;
-            }
-            .menu-seat h3 {
-                font-size: 1.5em;
-            }
-            .menu-seat h4 {
-                font-size: 1.2em;
-            }
-            .passenger-name-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .passenger-name {
-                width: 150px;
-                font-size: 0.9em;
-            }
-            .menu-item-container label {
-                padding: 8px;
-                font-size: 0.9em;
-            }
-            input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-            }
-            .subitems {
-                margin-left: 15px;
-            }
-            .selected-subitems {
-                margin-left: 15px;
-                font-size: 0.85em;
-            }
-            .btn {
-                padding: 8px 15px;
-                font-size: 0.9em;
-            }
-            .save-button {
-                padding: 10px 25px;
-            }
-            .seat-navigation {
-                gap: 10px;
-            }
-            .nav-button {
-                padding: 8px 15px;
-                font-size: 0.9em;
-            }
-            .food-counter {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .food-counter-item {
-                min-width: 60px;
-                padding: 6px 10px;
-            }
-            .food-counter-item span {
-                font-size: 1em;
-            }
-            .food-counter-item div {
-                font-size: 0.8em;
-                max-width: 80px;
-            }
-        }
-        @media (max-width: 480px) {
-            .menu-seat {
-                width: 48%;
-                padding: 10px;
-            }
-            .menu-seat h3 {
-                font-size: 1.3em;
-            }
-            .passenger-name {
-                width: 120px;
-                font-size: 0.85em;
-            }
-            .menu-item-container label {
-                padding: 6px;
-                font-size: 0.85em;
-            }
-            .btn {
-                margin-top: 25px;
-                padding: 10px 12px;
-                font-size: 0.85em;
-            }
-            .nav-button {
-                padding: 6px 12px;
-                font-size: 0.85em;
-            }
-            .food-counter-item {
-                min-width: 50px;
-                padding: 5px 8px;
-            }
-            .food-counter-item div {
-                max-width: 60px;
-            }
-        }
+         :root {
+    --bg-color: #1a2a44;
+    --text-color: #ffffff;
+    --card-bg: #2c3e50;
+    --item-bg: #34495e;
+    --accent-color: #d4af37;
+    --btn-primary: #1e88e5;
+    --btn-primary-hover: #1565c0;
+    --btn-danger: #d32f2f;
+    --btn-danger-hover: #b71c1c;
+    --border-color: #455a64;
+}
+
+body.light-theme {
+    --bg-color: #f5f5f5;
+    --text-color: #333333;
+    --card-bg: #ffffff;
+    --item-bg: #e0e0e0;
+    --accent-color: #d4af37;
+    --btn-primary: #1e88e5;
+    --btn-primary-hover: #1565c0;
+    --btn-danger: #d32f2f;
+    --btn-danger-hover: #b71c1c;
+    --border-color: #bdbdbd;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.language-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--item-bg);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.language-toggle:hover {
+    background: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.language-toggle img {
+    width: 24px;
+    height: 16px;
+    object-fit: cover;
+}
+.header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    color: var(--accent-color);
+    margin: 0 10px;
+    font-size: 2.2em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-grow: 1;
+}
+
+.item-text {
+    display: inline-block;
+    margin-left: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.tab {
+    padding: 10px 20px;
+    background: var(--item-bg);
+    border-radius: 6px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.tab.active {
+    background: var(--accent-color);
+    color: var(--bg-color);
+}
+
+.tab:hover {
+    background: #3e5a74;
+}
+
+.seat-navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.nav-button {
+    padding: 10px 20px;
+    background: var(--btn-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    background: var(--btn-primary-hover);
+    transform: translateY(-2px);
+}
+
+.nav-button:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#seat-counter {
+    font-size: 1.2em;
+    color: var(--accent-color);
+}
+
+.food-counter {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.food-counter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--item-bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-width: 80px;
+    position: relative;
+}
+
+.food-counter-item span {
+    font-size: 1.2em;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.food-counter-item div {
+    font-size: 0.9em;
+    text-align: center;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.food-counter-item:hover .tooltip {
+    display: block;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    top: -40px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    max-width: 200px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    white-space: normal;
+}
+
+.menu-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px;
+    justify-content: space-between;
+}
+
+.menu-seat {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px;
+    width: 48%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.menu-seat:hover {
+    transform: translateY(-5px);
+}
+
+.menu-seat h3 {
+    color: var(--accent-color);
+    font-size: 1.8em;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.menu-seat h4 {
+    color: var(--text-color);
+    font-size: 1.4em;
+    margin: 20px 0 10px;
+    padding: 0;
+}
+
+.menu-item-container {
+    position: relative;
+}
+
+.menu-item-container label {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background: var(--item-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.menu-item-container label:hover {
+    background: #3e5a74;
+    transform: translateX(5px);
+}
+
+.info-icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 14px;
+    color: var(--accent-color);
+    cursor: pointer;
+    position: relative;
+}
+
+/* Увеличение области нажатия чекбоксов */
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    /* Добавляем плавную анимацию */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Визуальная обратная связь при нажатии */
+input[type="checkbox"]:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+}
+
+/* Увеличение области клика с помощью псевдоэлемента */
+.main-label, .subitem-label {
+    position: relative;
+    padding: 10px 15px; /* Увеличиваем padding для большей области нажатия */
+    display: flex;
+    align-items: center;
+}
+
+/* Стили для предотвращения выделения текста при быстром касании */
+.item-text, .subitem-label {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Скрытие подменю при скроллинге */
+.menu-item-container.active {
+    transition: opacity 0.3s ease;
+}
+
+/* Увеличение области касания для меток */
+.main-label::before, .subitem-label::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    z-index: -1; /* Помещаем под содержимым */
+}
+.subitems {
+    margin-left: 20px;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.menu-item-container.active .subitems {
+    display: block;
+    opacity: 1;
+    max-height: 500px; /* Достаточно большое значение, чтобы вместить все подпункты */
+}
+
+.selected-subitems {
+    margin-left: 20px;
+    color: var(--accent-color);
+    font-style: italic;
+}
+
+.buttons {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    background: var(--btn-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin: 5px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover {
+    background: var(--btn-primary-hover);
+    transform: translateY(-2px);
+}
+
+.save-button {
+    padding: 12px 30px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card-bg);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--text-color);
+}
+
+.modal h3 {
+    color: var(--accent-color);
+    margin-top: 0;
+    font-size: 1.8em;
+}
+
+.editor-section {
+    margin-bottom: 20px;
+}
+
+.editor-section h4 {
+    color: var(--text-color);
+    margin: 10px 0;
+}
+
+.editor-section input {
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--item-bg);
+    color: var(--text-color);
+    width: 100%;
+}
+
+.editor-section .btn {
+    padding: 5px 10px;
+}
+
+.modal-button.close-button {
+    background: var(--btn-danger);
+}
+
+.modal-button.close-button:hover {
+    background: var(--btn-danger-hover);
+}
+
+.back-button {
+    background: var(--btn-primary);
+    font-size: 1.5em;
+    padding: 5px 10px;
+    border-radius: 6px;
+    width: auto;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.back-button:hover {
+    background: var(--btn-primary-hover);
+    transform: scale(1.1);
+}
+
+.settings-button {
+    background: #455a64;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.settings-button:hover {
+    background: #37474f;
+    transform: scale(1.1);
+}
+
+.passenger-name-container {
+    margin: 10px 0;
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    transition: background 0.3s ease; /* Remove transform transition */
+}
+
+.passenger-name-container:hover {
+    background: var(--item-bg);
+}
+
+.passenger-name {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #fff;
+    color: black;
+    font-weight: bold;
+    width: 200px;
+    font-family: 'Open Sans', sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Simplify transitions */
+}
+
+.passenger-name:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+}
+
+.custom-subitem-input {
+    position: relative;
+    z-index: 1;
+    background: var(--item-bg);
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: calc(100% - 18px);
+    font-size: 1em;
+    transition: none; /* Отключаем анимации для этого элемента */
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    body {
+        font-size: 18px;
+    }
+    
+    h1 {
+        font-size: 2.2em;
+        margin: 30px 0;
+    }
+    
+    .main-container {
+        flex-direction: column;
+        padding: 15px;
+        margin: 15px;
+        width: 90%;
+    }
+    
+    .left-column, .right-column {
+        min-height: 660px;
+        margin: 10px 0;
+        padding: 15px;
+    }
+    
+    .seat {
+        padding: 15px;
+        font-size: 1.2em;
+        margin: 10px 0;
+    }
+    
+    .buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin: 10px 0;
+    }
+    
+    .btn {
+        font-size: 1.1em;
+        padding: 15px 20px;
+        margin: 8px;
+        flex: 1 1 40%;
+    }
+    
+    .buttons-settings {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        gap: 20px;
+    }
+    
+    .settings-button, .theme-toggle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+    }
+    
+    /* Модальные окна */
+    .orders-modal, 
+    .settings-modal, 
+    .flight-modal, 
+    .seat-input-modal {
+        width: 80%;
+        padding: 20px;
+    }
+    
+    .seat-input-modal {
+        width: 90%;
+    }
+    
+    .seats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 12px;
+    }
+    
+    .seat-option {
+        padding: 12px;
+        font-size: 1.1em;
+    }
+    
+    .modal-button.btn {
+        font-size: 1.1em;
+        padding: 12px;
+    }
+    
+    /* Улучшаем отображение списка заказов */
+    .orders-modal ul li {
+        padding: 12px;
+        margin: 12px 0;
+    }
+    
+    /* Настройки для полей ввода */
+    .settings-modal input, 
+    .flight-modal select,
+    .seat-input-modal input {
+        padding: 12px;
+        font-size: 1.1em;
+    }
+    
+    /* Увеличиваем кнопки в модальных окнах */
+    .modal-footer {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .modal-button.btn {
+        flex: 1;
+    }
+    
+    /* Улучшаем отображение сетки мест */
+    .seats-grid {
+        max-height: 50vh;
+        padding: 15px;
+    }
+}
+
+/* Оптимизация для планшетов в альбомной ориентации */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+    .main-container {
+        flex-direction: row;
+    }
+    
+    .left-column, .right-column {
+        min-height: 400px;
+    }
+    
+    .buttons {
+        flex-direction: row;
+    }
+    
+    .btn {
+        flex: 1 1 30%;
+    }
+    
+    .seats-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    }
+}
+
+/* Дополнительные улучшения для больших планшетов */
+@media (min-width: 900px) and (max-width: 1024px) {
+    .main-container {
+        width: 85%;
+    }
+    
+    .btn {
+        font-size: 1.2em;
+    }
+    
+    .seat {
+        font-size: 1.3em;
+    }
+}
+
+/* Стили для мобильных устройств */
+@media (max-width: 767px) {
+    .menu-container {
+        flex-direction: row;
+        justify-content: space-between;
+        margin: 10px;
+    }
+    
+    .menu-seat {
+        width: 48%;
+        padding: 15px;
+        margin-bottom: 0;
+    }
+    
+    .menu-seat h3 {
+        font-size: 1.5em;
+    }
+    
+    .menu-seat h4 {
+        font-size: 1.2em;
+    }
+    
+    .passenger-name-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .passenger-name {
+        width: 150px;
+        font-size: 0.9em;
+    }
+    
+    .menu-item-container label {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+    
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .subitems {
+        margin-left: 15px;
+    }
+    
+    .selected-subitems {
+        margin-left: 15px;
+        font-size: 0.85em;
+    }
+    
+    .btn {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    .save-button {
+        padding: 10px 25px;
+    }
+    
+    .seat-navigation {
+        gap: 10px;
+    }
+    
+    .nav-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    .food-counter {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .food-counter-item {
+        min-width: 60px;
+        padding: 6px 10px;
+    }
+    
+    .food-counter-item span {
+        font-size: 1em;
+    }
+    
+    .food-counter-item div {
+        font-size: 0.8em;
+        max-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-seat {
+        width: 48%;
+        padding: 10px;
+    }
+    
+    .menu-seat h3 {
+        font-size: 1.3em;
+    }
+    
+    .passenger-name {
+        width: 120px;
+        font-size: 0.85em;
+    }
+    
+    .menu-item-container label {
+        padding: 6px;
+        font-size: 0.85em;
+    }
+    
+    .btn {
+        margin-top: 25px;
+        padding: 10px 12px;
+        font-size: 0.85em;
+    }
+    
+    .nav-button {
+        padding: 6px 12px;
+        font-size: 0.85em;
+    }
+    
+    .food-counter-item {
+        min-width: 50px;
+        padding: 5px 8px;
+    }
+    
+    .food-counter-item div {
+        max-width: 60px;
+    }
+}
+
+.site-footer {
+    width: 100%;
+    padding: 15px 0;
+    text-align: left;
+    background: var(--card-bg);
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+    transition: opacity 0.3s ease;
+}
+
+.site-footer:hover .footer-content {
+    opacity: 1;
+}
     </style>
 </head>
 <body>
@@ -593,15 +922,19 @@
         const getPassengerName = seat => savedMenus[seat]?.passengerName || '';
 
         function savePassengerName(input, seat) {
-    const name = input.value.trim();
-    savedMenus[seat] = savedMenus[seat] || {};
-    savedMenus[seat].passengerName = name;
-    localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-
-    // ✅ безопасная визуальная обратная связь
-    input.classList.add('saved');
-    setTimeout(() => input.classList.remove('saved'), 800);
-}
+            const name = input.value.trim();
+            savedMenus[seat] = savedMenus[seat] || {};
+            savedMenus[seat].passengerName = name;
+            localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+            
+            const cursorPos = input.selectionStart;
+            
+            input.style.borderColor = 'var(--accent-color)';
+            setTimeout(() => {
+                input.style.borderColor = 'var(--border-color)';
+                input.setSelectionRange(cursorPos, cursorPos);
+            }, 1000);
+        }
 
         /* ----------  hot-food counter  ---------- */
         const initHotFoodCounter = cycleData => {
