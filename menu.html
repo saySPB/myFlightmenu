@@ -592,14 +592,15 @@
         /* ----------  passengers  ---------- */
         const getPassengerName = seat => savedMenus[seat]?.passengerName || '';
 
-        const savePassengerName = (input, seat) => {
-            const name = input.value.trim();
-            savedMenus[seat] = savedMenus[seat] || {};
-            savedMenus[seat].passengerName = name;
-            localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+        function savePassengerName(input, seat) {
+            const menu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
+            menu.passengerName = input.value.trim();
+            localStorage.setItem(`menu_${seat}`, JSON.stringify(menu));
+            
+            // ✅ Безопасная визуальная обратная связь — без перерисовки DOM
             input.classList.add('saved');
-            setTimeout(() => input.classList.remove('saved'), 1000);
-        };
+            setTimeout(() => input.classList.remove('saved'), 800);
+        }
 
         /* ----------  hot-food counter  ---------- */
         const initHotFoodCounter = cycleData => {
