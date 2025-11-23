@@ -738,11 +738,10 @@
             savedMenus[seat] = savedMenus[seat] || {};
             savedMenus[seat].passengerName = name;
             localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-            
-            input.style.borderColor = 'var(--accent-color)';
-            setTimeout(() => {
-                input.style.borderColor = 'var(--border-color)';
-            }, 1000);
+
+            // ✅ Безопасная визуальная обратная связь
+            input.classList.add('saved');
+            setTimeout(() => input.classList.remove('saved'), 1000);
         }
 
         function initHotFoodCounter(cycleData) {
@@ -873,7 +872,7 @@
                         placeholder="Введите имя пассажира" 
                         value="${getPassengerName(seatNumber)}"
                         data-seat="${seatNumber}"
-                        onchange="savePassengerName(this, '${seatNumber}')"
+                        oninput="savePassengerName(this, '${seatNumber}')"
                         aria-label="Имя пассажира для места ${seatNumber}">
                 </div>
             `;

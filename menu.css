@@ -402,7 +402,10 @@ input[type="checkbox"] {
 .passenger-name {
     margin-bottom: 15px;
 }
-
+.passenger-name.saved {
+    border-color: var(--accent-color) !important;
+    transition: border-color 0.3s ease;
+}
 .passenger-name-input {
     width: 100%;
     padding: 8px;
