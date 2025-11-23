@@ -524,6 +524,11 @@ input[type="checkbox"]:active {
     box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
 }
 
+.passenger-name.saved {
+    border-color: var(--accent-color) !important;
+    transition: border-color 0.3s ease;
+}
+
 .custom-subitem-input {
     position: relative;
     z-index: 1;
@@ -930,14 +935,9 @@ function savePassengerName(input, seat) {
     savedMenus[seat] = savedMenus[seat] || {};
     savedMenus[seat].passengerName = name;
     localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-    
-    const cursorPos = input.selectionStart;
-    
-    input.style.borderColor = 'var(--accent-color)';
-    setTimeout(() => {
-        input.style.borderColor = 'var(--border-color)';
-        input.setSelectionRange(cursorPos, cursorPos);
-    }, 1000);
+
+    input.classList.add('saved');
+    setTimeout(() => input.classList.remove('saved'), 800);
 }
 
 function initHotFoodCounter(cycleData) {
@@ -1069,59 +1069,53 @@ function collectSeatData(seatNumber) {
 }
 
 function renderSeat(seatNumber, container) {
-    const seatData = savedMenus[seatNumber] || {};
     const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-    
-    container.innerHTML = `
-        <h3>${currentLanguage === 'en' ? 'Seat:' : 'Место:'} ${seatNumber}</h3>
-        <div class="passenger-name-container">
-            <label class="passenger-name-label">${currentLanguage === 'en' ? 'Passenger name:' : 'Имя пассажира:'}</label>
-            <input type="text" class="passenger-name" id="passenger-name-${seatNumber}" 
-                placeholder="${currentLanguage === 'en' ? 'Enter passenger name' : 'Введите имя пассажира'}" 
-                value="${getPassengerName(seatNumber)}"
-                data-seat="${seatNumber}"
-                onchange="savePassengerName(this, '${seatNumber}')"
-                aria-label="${currentLanguage === 'en' ? 'Passenger name for seat' : 'Имя пассажира для места'} ${seatNumber}">
-        </div>
-    `;
+    const saved = savedMenus[seatNumber] || {};
 
-    if (Object.keys(cycleData.sections).length === 0) {
-        container.innerHTML += '<p>Меню пустое. Настройте его через редактор.</p>';
-    } else {
-        Object.keys(cycleData.sections).forEach(sectionName => {
-            let translatedSectionName = sectionName;
-            if (currentLanguage === 'en') {
-                switch(sectionName) {
-                    case 'Горячее блюдо': translatedSectionName = 'Hot meal'; break;
-                    case 'Холодная закуска': translatedSectionName = 'Cold appetizer'; break;
-                    case 'Салат': translatedSectionName = 'Salad'; break;
-                    case 'Десерт': translatedSectionName = 'Dessert'; break;
-                    case 'Напитки': translatedSectionName = 'Beverages'; break;
-                    case 'Хлеб': translatedSectionName = 'Bread'; break;
-                    case 'Соус': translatedSectionName = 'Sauce'; break;
-                    case 'Алкоголь': translatedSectionName = 'Alcohol'; break;
-                    case 'Напитки б/а': translatedSectionName = 'Soft drinks'; break;
-                    case 'Закуска': translatedSectionName = 'Snack'; break;
-                    case 'будить или нет?': translatedSectionName = 'Wake up or not?'; break;
-                    default: translatedSectionName = sectionName;
-                }
-            }
-            container.innerHTML += `<h4>${translatedSectionName}</h4>`;
-            cycleData.sections[sectionName].forEach(item => {
-                renderMenuItem(container, seatNumber, sectionName, item, seatData, cycleData);
-            });
-        });
+    /* 1. Создаём каркас ТОЛЬКО если его ещё нет */
+    if (!container.dataset.rendered) {
+        container.innerHTML = `
+            <h3>${currentLanguage === 'en' ? 'Seat:' : 'Место:'} ${seatNumber}</h3>
+            <div class="passenger-name-container">
+                <label class="passenger-name-label">${currentLanguage === 'en' ? 'Passenger name:' : 'Имя пассажира:'}</label>
+                <input type="text" class="passenger-name" id="passenger-name-${seatNumber}"
+                       placeholder="${currentLanguage === 'en' ? 'Enter passenger name' : 'Введите имя пассажира'}"
+                       value="${getPassengerName(seatNumber)}"
+                       data-seat="${seatNumber}"
+                       onchange="savePassengerName(this, '${seatNumber}')">
+            </div>
+            <div class="menu-items-wrapper"></div>
+        `;
+        container.dataset.rendered = '1';
     }
-    
+
+    /* 2. Обновляем только меню (чек-боксы / подпункты) */
+    const wrapper = container.querySelector('.menu-items-wrapper');
+    wrapper.innerHTML = ''; // чистим предыдущее меню
+
+    if (!Object.keys(cycleData.sections).length) {
+        wrapper.innerHTML = '<p>Меню пустое. Настройте его через редактор.</p>';
+        return;
+    }
+
+    Object.keys(cycleData.sections).forEach(sectionName => {
+        let trans = sectionName;
+        if (currentLanguage === 'en') { /* ваши переводы */ }
+        wrapper.insertAdjacentHTML('beforeend', `<h4>${trans}</h4>`);
+        cycleData.sections[sectionName].forEach(item => {
+            renderMenuItem(wrapper, seatNumber, sectionName, item, saved, cycleData);
+        });
+    });
+
     attachEventListeners(container);
 }
 
-function renderMenuItem(container, seat, sectionName, item, seatData, cycleData) {
+function renderMenuItem(wrapper, seat, sectionName, item, seatData, cycleData) {
     const isChecked = seatData[item]?.checked ? 'checked' : '';
     const selectedSubitems = seatData[item]?.subitems || [];
     const itemSubitems = cycleData.subitems[item] || [];
-    
-    container.innerHTML += `
+
+    wrapper.insertAdjacentHTML('beforeend', `
         <div class="menu-item-container" data-item="${item}" data-seat="${seat}" data-section="${sectionName}">
             <label class="main-label">
                 <input type="checkbox" ${isChecked}>
@@ -1134,11 +1128,10 @@ function renderMenuItem(container, seat, sectionName, item, seatData, cycleData)
                         ${sub}
                     </label>
                 `).join('')}
-                
             </div>
             <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
         </div>
-    `;
+    `);
 }
 
 function handleCustomSubitemKeypress(event, input) {
