@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Меню — Бизнес-класс</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/menu.css">
     <style>
-        :root {
+         :root {
     --bg-color: #1a2a44;
     --text-color: #ffffff;
     --card-bg: #2c3e50;
@@ -524,11 +523,6 @@ input[type="checkbox"]:active {
     box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
 }
 
-.passenger-name.saved {
-    border-color: var(--accent-color) !important;
-    transition: border-color 0.3s ease;
-}
-
 .custom-subitem-input {
     position: relative;
     z-index: 1;
@@ -847,20 +841,19 @@ input[type="checkbox"]:active {
     </style>
 </head>
 <body>
-
     <div class="food-counter" id="hot-food-counter"></div>
     <div class="header">
         <div class="header-content">
             <div class="header-buttons">
-                <button class="back-button btn" onclick="goBackToIndex()">← Назад</button>
-                <button class="save-button btn" onclick="saveChanges()">Сохранить</button>
+                <button class="back-button btn" onclick="goBackToIndex()" aria-label="Вернуться">← Назад</button>
+                <button class="save-button btn" onclick="saveChanges()" aria-label="Сохранить">Сохранить</button>
             </div>
         </div>
     </div>
     <div class="seat-navigation">
-        <button class="nav-button" id="prev-seat" onclick="prevSeat()" disabled>← Предыдущее</button>
+        <button class="nav-button" id="prev-seat" onclick="prevSeat()" disabled aria-label="Предыдущее место">← Предыдущее</button>
         <div id="seat-counter">1 / 1</div>
-        <button class="nav-button" id="next-seat" onclick="nextSeat()" disabled>Следующее →</button>
+        <button class="nav-button" id="next-seat" onclick="nextSeat()" disabled aria-label="Следующее место">Следующее →</button>
     </div>
 
     <div class="tabs" id="cycle-tabs"></div>
@@ -881,736 +874,542 @@ input[type="checkbox"]:active {
             <button class="btn modal-button close-button" onclick="closeSettingsModal()">Закрыть</button>
         </div>
     </div>
-    <div class="language-toggle" id="language-toggle" onclick="toggleLanguage()">
-    <img src="icons/uk.png" alt="English" id="language-flag">
-    </div>
+
     <script>
-        let hotFoodCounts = {};
-let currentLanguage = localStorage.getItem('language') || 'ru';
-const menuContainer = document.getElementById('menu-container');
-const menuSeat1 = document.getElementById('menu-seat-1');
-const menuSeat2 = document.getElementById('menu-seat-2');
-const cycleTabs = document.getElementById('cycle-tabs');
-const editorSections = document.getElementById('editor-sections');
-const globalSubItemsContainer = document.getElementById('global-subitems');
-    
-let currentSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
-const menuData = JSON.parse(localStorage.getItem('menuData')) || {};
-const cycles = JSON.parse(localStorage.getItem('cycles')) || [];
-let selectedCycle = cycles[0] || '';
-
-let savedMenus = {};
-currentSeats.forEach(seat => {
-    savedMenus[seat] = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
-});
-
-let currentSeatIndex = 0;
-const prevSeatBtn = document.getElementById('prev-seat');
-const nextSeatBtn = document.getElementById('next-seat');
-const seatCounter = document.getElementById('seat-counter');
-
-if (localStorage.getItem('theme') === 'light') {
-    document.body.classList.add('light-theme');
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
+        /* ----------  utils & init  ---------- */
+        const debounce = (fn, t = 250) => {
+            let timer;
+            return (...a) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...a), t);
+            };
         };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+        const safeJSON = (key, def = {}) => {
+            try {
+                return JSON.parse(localStorage.getItem(key)) ?? def;
+            } catch {
+                return def;
+            }
+        };
 
-function getPassengerName(seat) {
-    const savedMenu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
-    return savedMenu.passengerName || '';
-}
+        /* ----------  state  ---------- */
+        let hotFoodCounts = {};
+        const menuContainer = document.getElementById('menu-container');
+        const menuSeat1 = document.getElementById('menu-seat-1');
+        const menuSeat2 = document.getElementById('menu-seat-2');
+        const cycleTabs = document.getElementById('cycle-tabs');
+        const editorSections = document.getElementById('editor-sections');
+        const globalSubItemsContainer = document.getElementById('global-subitems');
 
-function savePassengerName(input, seat) {
-    const name = input.value.trim();
-    savedMenus[seat] = savedMenus[seat] || {};
-    savedMenus[seat].passengerName = name;
-    localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+        let currentSeats = safeJSON('selectedSeats', []);
+        const menuData = safeJSON('menuData', {});
+        const cycles = safeJSON('cycles', []);
+        let selectedCycle = cycles[0] || '';
 
-    input.classList.add('saved');
-    setTimeout(() => input.classList.remove('saved'), 800);
-}
-
-function initHotFoodCounter(cycleData) {
-    hotFoodCounts = {};
-    if (cycleData.sections['Горячее блюдо']) {
-        cycleData.sections['Горячее блюдо'].forEach(item => {
-            hotFoodCounts[item] = 0;
+        let savedMenus = {};
+        currentSeats.forEach(s => {
+            savedMenus[s] = safeJSON(`menu_${s}`, {});
         });
 
-        currentSeats.forEach(seat => {
-            const menu = savedMenus[seat] || {};
-            Object.entries(menu).forEach(([item, data]) => {
-                if (data.section === 'Горячее блюдо' && data.checked) {
-                    hotFoodCounts[item] = (hotFoodCounts[item] || 0) + 1;
+        let currentSeatIndex = 0;
+        const prevSeatBtn = document.getElementById('prev-seat');
+        const nextSeatBtn = document.getElementById('next-seat');
+        const seatCounter = document.getElementById('seat-counter');
+
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
+
+        /* ----------  passengers  ---------- */
+        const getPassengerName = seat => savedMenus[seat]?.passengerName || '';
+
+        function savePassengerName(input, seat) {
+            const name = input.value.trim();
+            savedMenus[seat] = savedMenus[seat] || {};
+            savedMenus[seat].passengerName = name;
+            localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+
+            input.classList.add('saved');
+            setTimeout(() => input.classList.remove('saved'), 800);
+        }
+
+        /* ----------  hot-food counter  ---------- */
+        const initHotFoodCounter = cycleData => {
+            hotFoodCounts = {};
+            (cycleData.sections?.['Горячее блюдо'] || []).forEach(item => {
+                hotFoodCounts[item] = 0;
+            });
+            currentSeats.forEach(seat => {
+                const menu = savedMenus[seat] || {};
+                Object.entries(menu).forEach(([item, data]) => {
+                    if (data.section === 'Горячее блюдо' && data.checked) {
+                        hotFoodCounts[item] = (hotFoodCounts[item] || 0) + 1;
+                    }
+                });
+            });
+        };
+
+        const updateHotFoodCounter = () => {
+            const counterElement = document.getElementById('hot-food-counter');
+            counterElement.innerHTML = '';
+            const hotFoods = menuData[selectedCycle]?.sections?.['Горячее блюдо'] || [];
+            hotFoods.forEach(item => {
+                const count = hotFoodCounts[item] || 0;
+                const displayName = item.length > 20 ? item.substring(0, 17) + '…' : item;
+                counterElement.insertAdjacentHTML('beforeend', `
+                    <div class="food-counter-item">
+                        <span>${count}</span>
+                        <div title="${item}">${displayName}</div>
+                        ${item.length > 20 ? `<div class="tooltip">${item}</div>` : ''}
+                    </div>
+                `);
+            });
+            counterElement.style.display = hotFoods.length ? 'flex' : 'none';
+        };
+
+        /* ----------  navigation  ---------- */
+        const updateNavigation = () => {
+            const totalPairs = Math.max(1, currentSeats.length - 1);
+            const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
+            seatCounter.textContent = `${currentPair + 1} / ${totalPairs}`;
+            initHotFoodCounter(menuData[selectedCycle] || { sections: {} });
+            renderSeat(currentSeats[currentSeatIndex], menuSeat1);
+            if (currentSeatIndex < currentSeats.length - 1) {
+                menuSeat2.style.display = 'block';
+                renderSeat(currentSeats[currentSeatIndex + 1], menuSeat2);
+            } else {
+                menuSeat2.style.display = 'none';
+            }
+            prevSeatBtn.disabled = currentSeatIndex === 0;
+            nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
+            updateHotFoodCounter();
+        };
+
+        const nextSeat = () => {
+            saveCurrentSeat();
+            if (currentSeatIndex < currentSeats.length - 2) {
+                currentSeatIndex++;
+                updateNavigation();
+            }
+        };
+
+        const prevSeat = () => {
+            saveCurrentSeat();
+            if (currentSeatIndex > 0) {
+                currentSeatIndex--;
+                updateNavigation();
+            }
+        };
+
+        /* ----------  data collect  ---------- */
+        const saveCurrentSeat = () => {
+            const currentSeat = currentSeats[currentSeatIndex];
+            savedMenus[currentSeat] = collectSeatData(currentSeat);
+            localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(savedMenus[currentSeat]));
+        };
+
+        const collectSeatData = seatNumber => {
+            const data = {};
+            const passengerNameInput = document.querySelector(`.passenger-name[data-seat="${seatNumber}"]`);
+            if (passengerNameInput) data.passengerName = passengerNameInput.value.trim();
+
+            document.querySelectorAll(`.menu-item-container[data-seat="${seatNumber}"]`).forEach(container => {
+                const itemName = container.dataset.item;
+                const sectionName = container.dataset.section;
+                const checkbox = container.querySelector('.main-label input[type="checkbox"]');
+                const selectedSubitems = Array.from(container.querySelectorAll('.subitem-label input[type="checkbox"]:checked'))
+                    .map(inp => inp.closest('.subitem-label').textContent.trim());
+
+                if (checkbox.checked || selectedSubitems.length) {
+                    data[itemName] = {
+                        checked: checkbox.checked,
+                        subitems: selectedSubitems,
+                        section: sectionName,
+                        cycle: selectedCycle
+                    };
                 }
             });
-        });
-    }
-}
+            return data;
+        };
 
-function updateHotFoodCounter() {
-    const counterElement = document.getElementById('hot-food-counter');
-    counterElement.innerHTML = '';
-    
-    const hotFoods = menuData[selectedCycle]?.sections['Горячее блюдо'] || [];
-    
-    hotFoods.forEach(item => {
-        const count = hotFoodCounts[item] || 0;
-        const displayName = item.length > 20 ? item.substring(0, 17) + '...' : item;
-        counterElement.innerHTML += `
-            <div class="food-counter-item">
-                <span>${count}</span>
-                <div title="${item}">${displayName}</div>
-                ${item.length > 20 ? `<div class="tooltip">${item}</div>` : ''}
-            </div>
-        `;
-    });
-    
-    counterElement.style.display = hotFoods.length > 0 ? 'flex' : 'none';
-}
+        /* ----------  render  ---------- */
+        function renderSeat(seatNumber, container) {
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            const saved = savedMenus[seatNumber] || {};
 
-function updateNavigation(keepFocus = false) {
-    const prevLanguage = currentLanguage;
-    
-    const totalPairs = Math.max(1, currentSeats.length - 1);
-    const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
-    
-    seatCounter.textContent = `${currentPair + 1} / ${totalPairs}`;
-    
-    initHotFoodCounter(menuData[selectedCycle] || { sections: {} });
-    
-    const activeInput = document.activeElement;
-    const wasFocused = activeInput && activeInput.classList.contains('passenger-name');
-    const focusedSeat = wasFocused ? activeInput.getAttribute('data-seat') : null;
-    
-    renderSeat(currentSeats[currentSeatIndex], menuSeat1);
-    
-    if (currentSeatIndex < currentSeats.length - 1) {
-        menuSeat2.style.display = 'block';
-        renderSeat(currentSeats[currentSeatIndex + 1], menuSeat2);
-    } else {
-        menuSeat2.style.display = 'none';
-    }
-    
-    prevSeatBtn.disabled = currentSeatIndex === 0;
-    nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
-    
-    updateHotFoodCounter();
-    
-    if (keepFocus && wasFocused && focusedSeat === currentSeats[currentSeatIndex]) {
-        const input = document.querySelector(`.passenger-name[data-seat="${focusedSeat}"]`);
-        if (input) input.focus();
-    }
-    
-    currentLanguage = prevLanguage;
-    updateLanguage();
-}
+            /* 1. Создаём каркас ТОЛЬКО если его ещё нет */
+            if (!container.dataset.rendered) {
+                container.innerHTML = `
+                    <h3>${currentLanguage === 'en' ? 'Seat:' : 'Место:'} ${seatNumber}</h3>
+                    <div class="passenger-name-container">
+                        <label class="passenger-name-label">${currentLanguage === 'en' ? 'Passenger name:' : 'Имя пассажира:'}</label>
+                        <input type="text" class="passenger-name" id="passenger-name-${seatNumber}"
+                            placeholder="${currentLanguage === 'en' ? 'Enter passenger name' : 'Введите имя пассажира'}"
+                            value="${getPassengerName(seatNumber)}"
+                            data-seat="${seatNumber}"
+                            onchange="savePassengerName(this, '${seatNumber}')">
+                    </div>
+                    <div class="menu-items-wrapper"></div>
+                `;
+                container.dataset.rendered = '1';
+            }
 
-function nextSeat() {
-    saveCurrentSeat();
-    if (currentSeatIndex < currentSeats.length - 2) {
-        currentSeatIndex++;
-        updateNavigation(document.activeElement && document.activeElement.classList.contains('passenger-name'));
-    }
-}
+            /* 2. Обновляем только меню (чек-боксы / подпункты) */
+            const wrapper = container.querySelector('.menu-items-wrapper');
+            wrapper.innerHTML = ''; // чистим предыдущее меню
 
-function prevSeat() {
-    saveCurrentSeat();
-    if (currentSeatIndex > 0) {
-        currentSeatIndex--;
-        updateNavigation(document.activeElement && document.activeElement.classList.contains('passenger-name'));
-    }
-}
+            if (!Object.keys(cycleData.sections).length) {
+                wrapper.innerHTML = '<p>Меню пустое. Настройте его через редактор.</p>';
+                return;
+            }
 
-function saveCurrentSeat() {
-    const currentSeat = currentSeats[currentSeatIndex];
-    savedMenus[currentSeat] = collectSeatData(currentSeat);
-    localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(savedMenus[currentSeat]));
-}
+            Object.keys(cycleData.sections).forEach(sectionName => {
+                let trans = sectionName;
+                if (currentLanguage === 'en') { /* ваши переводы */ }
+                wrapper.insertAdjacentHTML('beforeend', `<h4>${trans}</h4>`);
+                cycleData.sections[sectionName].forEach(item => {
+                    renderMenuItem(wrapper, seatNumber, sectionName, item, saved, cycleData);
+                });
+            });
 
-function collectSeatData(seatNumber) {
-    const data = {};
-    const passengerNameInput = document.querySelector(`.passenger-name[data-seat="${seatNumber}"]`);
-    
-    if (passengerNameInput) {
-        data.passengerName = passengerNameInput.value.trim();
-    }
-    
-    const containers = document.querySelectorAll(`.menu-item-container[data-seat="${seatNumber}"]`);
-    
-    containers.forEach(container => {
-        const itemName = container.getAttribute('data-item');
-        const sectionName = container.getAttribute('data-section');
-        const checkbox = container.querySelector('.main-label input[type="checkbox"]');
-        const selectedSubitems = Array.from(container.querySelectorAll('.subitem-label input[type="checkbox"]:checked'))
-            .map(input => input.closest('.subitem-label').textContent.trim());
-        
-        if (checkbox.checked || selectedSubitems.length > 0) {
-            data[itemName] = {
-                checked: checkbox.checked,
-                subitems: selectedSubitems,
-                section: sectionName,
-                cycle: selectedCycle
-            };
+            attachEventListeners(container);
         }
-    });
-    
-    return data;
-}
 
-function renderSeat(seatNumber, container) {
-    const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-    const saved = savedMenus[seatNumber] || {};
+        function renderMenuItem(wrapper, seat, sectionName, item, seatData, cycleData) {
+            const isChecked = seatData[item]?.checked ? 'checked' : '';
+            const selectedSubitems = seatData[item]?.subitems || [];
+            const itemSubitems = cycleData.subitems[item] || [];
 
-    /* 1. Создаём каркас ТОЛЬКО если его ещё нет */
-    if (!container.dataset.rendered) {
-        container.innerHTML = `
-            <h3>${currentLanguage === 'en' ? 'Seat:' : 'Место:'} ${seatNumber}</h3>
-            <div class="passenger-name-container">
-                <label class="passenger-name-label">${currentLanguage === 'en' ? 'Passenger name:' : 'Имя пассажира:'}</label>
-                <input type="text" class="passenger-name" id="passenger-name-${seatNumber}"
-                       placeholder="${currentLanguage === 'en' ? 'Enter passenger name' : 'Введите имя пассажира'}"
-                       value="${getPassengerName(seatNumber)}"
-                       data-seat="${seatNumber}"
-                       onchange="savePassengerName(this, '${seatNumber}')">
-            </div>
-            <div class="menu-items-wrapper"></div>
-        `;
-        container.dataset.rendered = '1';
-    }
-
-    /* 2. Обновляем только меню (чек-боксы / подпункты) */
-    const wrapper = container.querySelector('.menu-items-wrapper');
-    wrapper.innerHTML = ''; // чистим предыдущее меню
-
-    if (!Object.keys(cycleData.sections).length) {
-        wrapper.innerHTML = '<p>Меню пустое. Настройте его через редактор.</p>';
-        return;
-    }
-
-    Object.keys(cycleData.sections).forEach(sectionName => {
-        let trans = sectionName;
-        if (currentLanguage === 'en') { /* ваши переводы */ }
-        wrapper.insertAdjacentHTML('beforeend', `<h4>${trans}</h4>`);
-        cycleData.sections[sectionName].forEach(item => {
-            renderMenuItem(wrapper, seatNumber, sectionName, item, saved, cycleData);
-        });
-    });
-
-    attachEventListeners(container);
-}
-
-function renderMenuItem(wrapper, seat, sectionName, item, seatData, cycleData) {
-    const isChecked = seatData[item]?.checked ? 'checked' : '';
-    const selectedSubitems = seatData[item]?.subitems || [];
-    const itemSubitems = cycleData.subitems[item] || [];
-
-    wrapper.insertAdjacentHTML('beforeend', `
-        <div class="menu-item-container" data-item="${item}" data-seat="${seat}" data-section="${sectionName}">
-            <label class="main-label">
-                <input type="checkbox" ${isChecked}>
-                <span class="item-text">${item}</span>
-            </label>
-            <div class="subitems">
-                ${itemSubitems.map(sub => `
-                    <label class="subitem-label">
-                        <input type="checkbox" ${selectedSubitems.includes(sub) ? 'checked' : ''}>
-                        ${sub}
+            wrapper.insertAdjacentHTML('beforeend', `
+                <div class="menu-item-container" data-item="${item}" data-seat="${seat}" data-section="${sectionName}">
+                    <label class="main-label">
+                        <input type="checkbox" ${isChecked}>
+                        <span class="item-text">${item}</span>
                     </label>
-                `).join('')}
-            </div>
-            <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
-        </div>
-    `);
-}
+                    <div class="subitems">
+                        ${itemSubitems.map(sub => `
+                            <label class="subitem-label">
+                                <input type="checkbox" ${selectedSubitems.includes(sub) ? 'checked' : ''}>
+                                ${sub}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
+                </div>
+            `);
+        }
 
-function handleCustomSubitemKeypress(event, input) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        
-        const subitemText = input.value.trim();
-        if (subitemText) {
+        /* ----------  events  ---------- */
+        const handleCustomSubitemKeypress = (event, input) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            const subitemText = input.value.trim();
+            if (!subitemText) return;
+
             const item = input.dataset.item;
             const seat = input.dataset.seat;
             const sectionName = input.dataset.section;
-            
             const isFocused = document.activeElement === input;
             const cursorPos = input.selectionStart;
-            
-            const menuData = savedMenus[seat] || {};
-            menuData[item] = menuData[item] || { subitems: [], section: sectionName };
 
-            if (!menuData[item].subitems.includes(subitemText)) {
-                menuData[item].subitems.push(subitemText);
-                
+            savedMenus[seat] = savedMenus[seat] || {};
+            savedMenus[seat][item] = savedMenus[seat][item] || { subitems: [], section: sectionName };
+
+            if (!savedMenus[seat][item].subitems.includes(subitemText)) {
+                savedMenus[seat][item].subitems.push(subitemText);
                 const container = input.closest('.menu-item-container');
                 if (container) {
                     const selectedSubitemsDiv = container.querySelector('.selected-subitems');
                     if (selectedSubitemsDiv) {
-                        selectedSubitemsDiv.innerHTML = menuData[item].subitems.map(sub => `<div>${sub}</div>`).join('');
+                        selectedSubitemsDiv.innerHTML = savedMenus[seat][item].subitems.map(sub => `<div>${sub}</div>`).join('');
                     }
                 }
-
                 const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-                if (!cycleData.subitems[item]) cycleData.subitems[item] = [];
+                if (!Array.isArray(cycleData.subitems[item])) cycleData.subitems[item] = [];
                 if (!cycleData.subitems[item].includes(subitemText)) {
                     cycleData.subitems[item].push(subitemText);
                     menuData[selectedCycle] = cycleData;
                     localStorage.setItem('menuData', JSON.stringify(menuData));
                 }
             }
-            
-            savedMenus[seat] = menuData;
             input.value = '';
-            
-            if (isFocused) {
+            if (isFocused && input.type === 'text') {
                 setTimeout(() => {
                     input.focus();
                     input.setSelectionRange(cursorPos, cursorPos);
                 }, 0);
             }
-            
             localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-        }
-    }
-}
+        };
 
-function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
-    const menuData = savedMenus[currentSeat] || {};
-    const wasChecked = menuData[itemName]?.checked || false;
-    menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
-    menuData[itemName].checked = checkbox.checked;
-    
-    if (sectionName === 'Горячее блюдо') {
-        if (checkbox.checked && !wasChecked) {
-            hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
-        } else if (!checkbox.checked && wasChecked) {
-            hotFoodCounts[itemName] = Math.max((hotFoodCounts[itemName] || 0) - 1, 0);
-        }
-        updateHotFoodCounter();
-    }
-    
-    if (!checkbox.checked) {
-        menuData[itemName].subitems = [];
-        const container = checkbox.closest('.menu-item-container');
-        if (container) {
-            container.querySelector('.selected-subitems').innerHTML = '';
-            container.querySelectorAll('.subitem-label input[type="checkbox"]').forEach(subCheckbox => {
-                subCheckbox.checked = false;
-            });
-        }
-    }
-    
-    const currentContainer = checkbox.closest('.menu-item-container');
-    const selectedSubitemsDiv = currentContainer.querySelector('.selected-subitems');
-    if (selectedSubitemsDiv) {
-        selectedSubitemsDiv.innerHTML = menuData[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
-    }
-    
-    savedMenus[currentSeat] = menuData;
-    localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(savedMenus[currentSeat]));
-}
+        const updateCheckbox = (checkbox, itemName, currentSeat, sectionName) => {
+            const menu = savedMenus[currentSeat] || {};
+            const wasChecked = menu[itemName]?.checked || false;
+            menu[itemName] = menu[itemName] || { subitems: [], section: sectionName };
+            menu[itemName].checked = checkbox.checked;
 
-function attachEventListeners(container) {
-    const items = container.querySelectorAll('.menu-item-container');
-    let holdTimer;
-    let isScrolling = false;
-    let startX, startY;
-
-    items.forEach(item => {
-        const mainLabel = item.querySelector('.main-label');
-        const mainCheckbox = mainLabel.querySelector('input[type="checkbox"]');
-        const itemName = item.getAttribute('data-item');
-        const seat = item.getAttribute('data-seat');
-        const sectionName = item.getAttribute('data-section');
-        const subitemLabels = item.querySelectorAll('.subitem-label');
-
-        mainLabel.addEventListener('click', (e) => {
-            if (e.target.tagName !== 'INPUT' && e.target !== mainCheckbox) {
-                e.preventDefault();
-                mainCheckbox.checked = !mainCheckbox.checked;
-                updateCheckbox(mainCheckbox, itemName, seat, sectionName);
-            }
-        });
-
-        subitemLabels.forEach(label => {
-            const subCheckbox = label.querySelector('input[type="checkbox"]');
-            const subitemText = label.textContent.trim();
-            
-            label.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'INPUT' && e.target !== subCheckbox) {
-                    e.preventDefault();
-                    subCheckbox.checked = !subCheckbox.checked;
-                    toggleSubitem(subCheckbox, itemName, subitemText, seat, sectionName);
+            if (sectionName === 'Горячее блюдо') {
+                if (checkbox.checked && !wasChecked) {
+                    hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
+                } else if (!checkbox.checked && wasChecked) {
+                    hotFoodCounts[itemName] = Math.max((hotFoodCounts[itemName] || 0) - 1, 0);
                 }
-            });
-        });
-
-        const handleHoldStart = (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            startX = e.clientX || e.touches[0].clientX;
-            startY = e.clientY || e.touches[0].clientY;
-            isScrolling = false;
-            
-            holdTimer = setTimeout(() => {
-                if (!isScrolling) {
-                    item.classList.toggle('active');
-                }
-            }, 800);
-        };
-
-        const handleMove = (e) => {
-            if (!holdTimer || e.target.tagName === 'INPUT') return;
-            const currentX = e.clientX || e.touches[0].clientX;
-            const currentY = e.clientY || e.touches[0].clientY;
-            const diffX = Math.abs(currentX - startX);
-            const diffY = Math.abs(currentY - startY);
-            if (diffX > 5 || diffY > 5) {
-                isScrolling = true;
-                clearTimeout(holdTimer);
+                updateHotFoodCounter();
             }
+            if (!checkbox.checked) {
+                menu[itemName].subitems = [];
+                const container = checkbox.closest('.menu-item-container');
+                if (container) {
+                    container.querySelector('.selected-subitems').innerHTML = '';
+                    container.querySelectorAll('.subitem-label input[type="checkbox"]').forEach(cb => cb.checked = false);
+                }
+            }
+            const selectedSubitemsDiv = checkbox.closest('.menu-item-container').querySelector('.selected-subitems');
+            if (selectedSubitemsDiv) {
+                selectedSubitemsDiv.innerHTML = menu[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
+            }
+            savedMenus[currentSeat] = menu;
         };
 
-        const handleHoldEnd = () => {
-            clearTimeout(holdTimer);
+        const toggleSubitem = (checkbox, itemName, subitemText, currentSeat, sectionName) => {
+            const container = checkbox.closest('.menu-item-container');
+            const selectedSubitemsDiv = container.querySelector('.selected-subitems');
+            savedMenus[currentSeat] = savedMenus[currentSeat] || {};
+            savedMenus[currentSeat][itemName] = savedMenus[currentSeat][itemName] || { subitems: [], section: sectionName };
+
+            if (checkbox.checked) {
+                if (!savedMenus[currentSeat][itemName].subitems.includes(subitemText)) {
+                    savedMenus[currentSeat][itemName].subitems.push(subitemText);
+                }
+            } else {
+                savedMenus[currentSeat][itemName].subitems = savedMenus[currentSeat][itemName].subitems.filter(sub => sub !== subitemText);
+            }
+            selectedSubitemsDiv.innerHTML = savedMenus[currentSeat][itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
         };
 
-        mainLabel.addEventListener('touchstart', handleHoldStart);
-        mainLabel.addEventListener('touchmove', handleMove);
-        mainLabel.addEventListener('touchend', handleHoldEnd);
-        mainLabel.addEventListener('mousedown', handleHoldStart);
-        mainLabel.addEventListener('mousemove', handleMove);
-        mainLabel.addEventListener('mouseup', handleHoldEnd);
-        mainLabel.addEventListener('mouseleave', handleHoldEnd);
-    });
+        const attachEventListeners = container => {
+            const items = container.querySelectorAll('.menu-item-container');
+            let holdTimer, isScrolling, startX, startY;
 
-    const inputs = container.querySelectorAll('.passenger-name');
-    inputs.forEach(input => {
-        input.addEventListener('focus', (e) => {
-            e.stopPropagation();
-        });
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!container.contains(e.target)) {
             items.forEach(item => {
-                if (item.classList.contains('active')) {
-                    item.classList.remove('active');
+                const mainLabel = item.querySelector('.main-label');
+                const mainCheckbox = mainLabel.querySelector('input[type="checkbox"]');
+                const itemName = item.dataset.item;
+                const seat = item.dataset.seat;
+                const sectionName = item.dataset.section;
+
+                mainLabel.addEventListener('click', e => {
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        mainCheckbox.checked = !mainCheckbox.checked;
+                        updateCheckbox(mainCheckbox, itemName, seat, sectionName);
+                    }
+                });
+
+                item.querySelectorAll('.subitem-label').forEach(label => {
+                    const subCheckbox = label.querySelector('input[type="checkbox"]');
+                    const subitemText = label.textContent.trim();
+                    label.addEventListener('click', e => {
+                        if (e.target.tagName !== 'INPUT') {
+                            e.preventDefault();
+                            subCheckbox.checked = !subCheckbox.checked;
+                            toggleSubitem(subCheckbox, itemName, subitemText, seat, sectionName);
+                        }
+                    });
+                });
+
+                const handleHoldStart = e => {
+                    startX = e.clientX || e.touches[0].clientX;
+                    startY = e.clientY || e.touches[0].clientY;
+                    isScrolling = false;
+                    holdTimer = setTimeout(() => {
+                        if (!isScrolling) item.classList.toggle('active');
+                    }, 700);
+                };
+                const handleMove = e => {
+                    if (!holdTimer) return;
+                    const currentX = e.clientX || e.touches[0].clientX;
+                    const currentY = e.clientY || e.touches[0].clientY;
+                    if (Math.abs(currentX - startX) > 5 || Math.abs(currentY - startY) > 5) {
+                        isScrolling = true;
+                        clearTimeout(holdTimer);
+                    }
+                };
+                const handleHoldEnd = () => clearTimeout(holdTimer);
+
+                mainLabel.addEventListener('touchstart', handleHoldStart);
+                mainLabel.addEventListener('touchmove', handleMove);
+                mainLabel.addEventListener('touchend', handleHoldEnd);
+                mainLabel.addEventListener('mousedown', handleHoldStart);
+                mainLabel.addEventListener('mousemove', handleMove);
+                mainLabel.addEventListener('mouseup', handleHoldEnd);
+                mainLabel.addEventListener('mouseleave', handleHoldEnd);
+            });
+
+            document.addEventListener('click', e => {
+                if (!container.contains(e.target)) {
+                    items.forEach(item => item.classList.remove('active'));
                 }
             });
-        }
-    });
-}
-
-function toggleSubitem(checkbox, itemName, subitemText, currentSeat, sectionName) {
-    const container = checkbox.closest('.menu-item-container');
-    const selectedSubitemsDiv = container.querySelector('.selected-subitems');
-    const menuData = savedMenus[currentSeat] || {};
-    menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
-
-    if (checkbox.checked) {
-        if (!menuData[itemName].subitems.includes(subitemText)) {
-            menuData[itemName].subitems.push(subitemText);
-        }
-    } else {
-        menuData[itemName].subitems = menuData[itemName].subitems.filter(sub => sub !== subitemText);
-    }
-    selectedSubitemsDiv.innerHTML = menuData[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
-    
-    savedMenus[currentSeat] = menuData;
-    localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(savedMenus[currentSeat]));
-}
-
-function saveChanges() {
-    saveCurrentSeat();
-    if (currentSeatIndex < currentSeats.length - 1) {
-        const nextSeat = currentSeats[currentSeatIndex + 1];
-        savedMenus[nextSeat] = collectSeatData(nextSeat);
-        localStorage.setItem(`menu_${nextSeat}`, JSON.stringify(savedMenus[nextSeat]));
-    }
-    
-    currentSeats.forEach(seat => {
-        localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-    });
-    
-    let savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
-    currentSeats.forEach(seat => {
-        if (!savedSeats.includes(seat)) {
-            savedSeats.push(seat);
-        }
-    });
-    localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
-    
-    localStorage.setItem('selectedSeats', JSON.stringify([]));
-    
-    alert('Изменения сохранены для всех выбранных мест!');
-    window.location.href = 'index.html';
-}
-
-function goBackToIndex() {
-    if (confirm('Вернуться без сохранения изменений?')) {
-        window.location.href = 'index.html';
-    }
-}
-
-function renderTabs() {
-    cycleTabs.innerHTML = '';
-    if (cycles.length === 0) {
-        cycleTabs.innerHTML = '<p>Нет доступных циклов. Подгрузите меню в настройках.</p>';
-        return;
-    }
-    cycles.forEach(cycle => {
-        const tab = document.createElement('div');
-        tab.className = `tab ${cycle === selectedCycle ? 'active' : ''}`;
-        tab.textContent = cycle;
-        tab.onclick = () => {
-            selectedCycle = cycle;
-            updateTabs();
-            updateNavigation();
         };
-        cycleTabs.appendChild(tab);
-    });
-}
 
-function updateTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.classList.toggle('active', tab.textContent === selectedCycle);
-    });
-}
+        /* ----------  save / exit  ---------- */
+        const saveChanges = () => {
+            saveCurrentSeat();
+            if (currentSeatIndex < currentSeats.length - 1) {
+                const nextSeat = currentSeats[currentSeatIndex + 1];
+                savedMenus[nextSeat] = collectSeatData(nextSeat);
+                localStorage.setItem(`menu_${nextSeat}`, JSON.stringify(savedMenus[nextSeat]));
+            }
+            currentSeats.forEach(seat => {
+                localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+            });
+            let savedSeats = safeJSON('savedSeats', []);
+            currentSeats.forEach(seat => {
+                if (!savedSeats.includes(seat)) savedSeats.push(seat);
+            });
+            localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
+            localStorage.setItem('selectedSeats', JSON.stringify([]));
+            alert('Изменения сохранены для всех выбранных мест!');
+            window.location.href = 'index.html';
+        };
 
-function openSettingsModal() {
-    document.getElementById('settings-modal-overlay').style.display = 'block';
-    document.getElementById('settings-modal').style.display = 'block';
-    loadEditorSections();
-    
-    const modalTitle = document.querySelector('#settings-modal h3');
-    const addSectionBtn = document.querySelector('#settings-modal button:nth-of-type(1)');
-    const addSubItemBtn = document.querySelector('#settings-modal button:nth-of-type(2)');
-    const saveSettingsBtn = document.querySelector('#settings-modal button:nth-of-type(3)');
-    const closeBtn = document.querySelector('#settings-modal .close-button');
-    
-    if (currentLanguage === 'en') {
-        modalTitle.textContent = 'Menu Editor';
-        addSectionBtn.textContent = 'Add Section';
-        addSubItemBtn.textContent = '+ Add Subitem';
-        saveSettingsBtn.textContent = 'Save Settings';
-        closeBtn.textContent = 'Close';
-    } else {
-        modalTitle.textContent = 'Редактор меню';
-        addSectionBtn.textContent = 'Добавить раздел';
-        addSubItemBtn.textContent = '+ Добавить подпункт';
-        saveSettingsBtn.textContent = 'Сохранить настройки';
-        closeBtn.textContent = 'Закрыть';
-    }
-}
+        const goBackToIndex = () => {
+            if (confirm('Вернуться без сохранения изменений?')) {
+                window.location.href = 'index.html';
+            }
+        };
 
-function closeSettingsModal() {
-    document.getElementById('settings-modal-overlay').style.display = 'none';
-    document.getElementById('settings-modal').style.display = 'none';
-}
+        /* ----------  tabs & modal  ---------- */
+        const renderTabs = () => {
+            cycleTabs.innerHTML = '';
+            if (!cycles.length) {
+                cycleTabs.innerHTML = '<p>Нет доступных циклов. Подгрузите меню в настройках.</p>';
+                return;
+            }
+            cycles.forEach(cycle => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${cycle === selectedCycle ? 'active' : ''}`;
+                tab.textContent = cycle;
+                tab.onclick = () => {
+                    selectedCycle = cycle;
+                    updateTabs();
+                    updateNavigation();
+                };
+                cycleTabs.appendChild(tab);
+            });
+        };
 
-function addSection() {
-    const sectionId = `section-${Date.now()}`;
-    editorSections.insertAdjacentHTML('beforeend', `
-        <div class="editor-section" id="${sectionId}">
-            <input type="text" placeholder="Название раздела" id="${sectionId}-name">
-            <div id="${sectionId}-items"></div>
-            <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
-            <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
-        </div>
-    `);
-}
+        const updateTabs = () => {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === selectedCycle);
+            });
+        };
 
-function addItem(sectionId) {
-    const itemId = `item-${Date.now()}`;
-    document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
-        <div class="menu-item" id="${itemId}">
-            <input type="text" placeholder="Название пункта" id="${itemId}-name">
-            <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
-        </div>
-    `);
-}
+        const openSettingsModal = () => {
+            document.getElementById('settings-modal-overlay').style.display = 'block';
+            document.getElementById('settings-modal').style.display = 'block';
+            loadEditorSections();
+        };
 
-function addGlobalSubItem() {
-    const subItemId = `subitem-${Date.now()}`;
-    globalSubItemsContainer.insertAdjacentHTML('beforeend', `
-        <div class="global-subitem" id="${subItemId}">
-            <input type="text" placeholder="Название подпункта" id="${subItemId}-name">
-            <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
-        </div>
-    `);
-}
+        const closeSettingsModal = () => {
+            document.getElementById('settings-modal-overlay').style.display = 'none';
+            document.getElementById('settings-modal').style.display = 'none';
+        };
 
-function loadEditorSections() {
-    const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-    editorSections.innerHTML = '';
-    globalSubItemsContainer.innerHTML = '';
+        const addSection = () => {
+            const sectionId = `section-${Date.now()}`;
+            editorSections.insertAdjacentHTML('beforeend', `
+                <div class="editor-section" id="${sectionId}">
+                    <input type="text" placeholder="Название раздела" id="${sectionId}-name">
+                    <div id="${sectionId}-items"></div>
+                    <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
+                    <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
+                </div>
+            `);
+        };
 
-    Object.keys(cycleData.sections).forEach((sectionName, index) => {
-        const sectionId = `section-${Date.now()}-${index}`;
-        editorSections.insertAdjacentHTML('beforeend', `
-            <div class="editor-section" id="${sectionId}">
-                <input type="text" value="${sectionName}" id="${sectionId}-name">
-                <div id="${sectionId}-items"></div>
-                <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
-                <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
-            </div>
-        `);
-        cycleData.sections[sectionName].forEach(item => {
-            const itemId = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const addItem = sectionId => {
+            const itemId = `item-${Date.now()}`;
             document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
                 <div class="menu-item" id="${itemId}">
-                    <input type="text" value="${item}" id="${itemId}-name">
+                    <input type="text" placeholder="Название пункта" id="${itemId}-name">
                     <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
                 </div>
             `);
-        });
-    });
+        };
 
-    Object.values(cycleData.subitems).flat().forEach((subitem, index) => {
-        const subItemId = `subitem-${Date.now()}-${index}`;
-        globalSubItemsContainer.insertAdjacentHTML('beforeend', `
-            <div class="global-subitem" id="${subItemId}">
-                <input type="text" value="${subitem}" id="${subItemId}-name">
-                <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
-            </div>
-        `);
-    });
-}
+        const addGlobalSubItem = () => {
+            const subItemId = `subitem-${Date.now()}`;
+            globalSubItemsContainer.insertAdjacentHTML('beforeend', `
+                <div class="global-subitem" id="${subItemId}">
+                    <input type="text" placeholder="Название подпункта" id="${subItemId}-name">
+                    <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
+                </div>
+            `);
+        };
 
-function toggleLanguage() {
-    currentLanguage = currentLanguage === 'ru' ? 'en' : 'ru';
-    localStorage.setItem('language', currentLanguage);
-    updateLanguage();
-}
+        const loadEditorSections = () => {
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            editorSections.innerHTML = '';
+            globalSubItemsContainer.innerHTML = '';
 
-function updateLanguage() {
-    const flag = document.getElementById('language-flag');
-    const backButton = document.querySelector('.back-button');
-    const saveButton = document.querySelector('.save-button');
-    const prevButton = document.getElementById('prev-seat');
-    const nextButton = document.getElementById('next-seat');
-    
-    const passengerNameLabels = document.querySelectorAll('.passenger-name-label');
-    
-    const sectionHeaders = document.querySelectorAll('.menu-seat h4');
-    
-    if (currentLanguage === 'en') {
-        flag.src = 'icons/uk.png';
-        flag.alt = 'English';
-        document.title = 'Menu — Business Class';
-        if (backButton) backButton.textContent = '← Back';
-        if (saveButton) saveButton.textContent = 'Save';
-        if (prevButton) prevButton.textContent = '← Previous';
-        if (nextButton) nextButton.textContent = 'Next →';
-        
-        passengerNameLabels.forEach(label => {
-            label.textContent = 'Passenger name:';
-        });
-        
-        sectionHeaders.forEach(header => {
-            const sectionName = header.textContent.trim();
-            switch(sectionName) {
-                case 'Горячее блюдо': header.textContent = 'Hot meal'; break;
-                case 'Холодная закуска': header.textContent = 'Cold appetizer'; break;
-                case 'Салат': header.textContent = 'Salad'; break;
-                case 'Десерт': header.textContent = 'Dessert'; break;
-                case 'Напитки': header.textContent = 'Beverages'; break;
-                case 'Хлеб': header.textContent = 'Bread'; break;
-                case 'Соус': header.textContent = 'Sauce'; break;
-                case 'Алкоголь': header.textContent = 'Alcohol'; break;
-                case 'Напитки б/а': header.textContent = 'Soft drinks'; break;
-                case 'Закуска': header.textContent = 'Snack'; break;
-                case 'будить или нет?': header.textContent = 'Wake up or not?'; break;
+            Object.keys(cycleData.sections || {}).forEach((sectionName, index) => {
+                const sectionId = `section-${Date.now()}-${index}`;
+                editorSections.insertAdjacentHTML('beforeend', `
+                    <div class="editor-section" id="${sectionId}">
+                        <input type="text" value="${sectionName}" id="${sectionId}-name">
+                        <div id="${sectionId}-items"></div>
+                        <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
+                        <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
+                    </div>
+                `);
+                cycleData.sections[sectionName].forEach(item => {
+                    const itemId = `item-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+                    document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
+                        <div class="menu-item" id="${itemId}">
+                            <input type="text" value="${item}" id="${itemId}-name">
+                            <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
+                        </div>
+                    `);
+                });
+            });
 
-            }
-        });
-        
-    } else {
-        flag.src = 'icons/ru.png';
-        flag.alt = 'Russian';
-        document.title = 'Меню — Бизнес-класс';
-        if (backButton) backButton.textContent = '← Назад';
-        if (saveButton) saveButton.textContent = 'Сохранить';
-        if (prevButton) prevButton.textContent = '← Предыдущее';
-        if (nextButton) nextButton.textContent = 'Следующее →';
-        
-        passengerNameLabels.forEach(label => {
-            label.textContent = 'Имя пассажира:';
-        });
-        
-        sectionHeaders.forEach(header => {
-            const sectionName = header.textContent.trim();
-            switch(sectionName) {
-                case 'Hot meal': header.textContent = 'Горячее блюдо'; break;
-                case 'Cold appetizer': header.textContent = 'Холодная закуска'; break;
-                case 'Salad': header.textContent = 'Салат'; break;
-                case 'Dessert': header.textContent = 'Десерт'; break;
-                case 'Beverages': header.textContent = 'Напитки'; break;
-                case 'Bread': header.textContent = 'Хлеб'; break;
-                case 'Sauce': header.textContent = 'Соус'; break;
-                case 'Alcohol': header.textContent = 'Алкоголь'; break;
-                case 'Soft drinks': header.textContent = 'Напитки б/а'; break;
-                case 'Snack': header.textContent = 'Закуска'; break;
-                case 'Wake up or not': header.textContent = 'будить или нет'; break;
+            Object.values(cycleData.subitems || {}).flat().forEach((subitem, index) => {
+                const subItemId = `subitem-${Date.now()}-${index}`;
+                globalSubItemsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="global-subitem" id="${subItemId}">
+                        <input type="text" value="${subitem}" id="${subItemId}-name">
+                        <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
+                    </div>
+                `);
+            });
+        };
 
-            }
-        });
-    }
-}
-
-function saveMenuSettings() {
-    const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-    cycleData.sections = {};
-    document.querySelectorAll('.editor-section').forEach(section => {
-        const sectionName = section.querySelector('input').value;
-        const items = Array.from(section.querySelectorAll('.menu-item input')).map(input => input.value);
-        if (sectionName && items.length) cycleData.sections[sectionName] = items;
-    });
-    menuData[selectedCycle] = cycleData;
-    localStorage.setItem('menuData', JSON.stringify(menuData));
-    closeSettingsModal();
-    updateNavigation();
-}
-
-const debouncedUpdateNavigation = debounce(() => {
-    const activeElement = document.activeElement;
-    const isInputFocused = activeElement && activeElement.classList.contains('passenger-name');
-    updateNavigation(isInputFocused);
-}, 250);
-
-window.addEventListener('resize', debouncedUpdateNavigation);
-
-window.onload = function() {
-    renderTabs();
-    updateNavigation();
-    updateLanguage();
-    
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
+        const saveMenuSettings = () => {
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            cycleData.sections = {};
+            document.querySelectorAll('.editor-section').forEach(section => {
+                const sectionName = section.querySelector('input').value.trim();
+                const items = Array.from(section.querySelectorAll('.menu-item input')).map(inp => inp.value.trim()).filter(Boolean);
+                if (sectionName && items.length) cycleData.sections[sectionName] = items;
+            });
+            menuData[selectedCycle] = cycleData;
+            localStorage.setItem('menuData', JSON.stringify(menuData));
             closeSettingsModal();
-        }
-    });
-    
-    document.getElementById('settings-modal-overlay').onclick = function(e) {
-        if (e.target === this) {
-            closeSettingsModal();
-        }
-    };
-};
+            updateNavigation();
+        };
+
+        /* ----------  start  ---------- */
+        window.addEventListener('resize', debounce(updateNavigation, 250));
+        window.onload = () => {
+            renderTabs();
+            updateNavigation();
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeSettingsModal();
+            });
+            document.getElementById('settings-modal-overlay').onclick = e => {
+                if (e.target === e.currentTarget) closeSettingsModal();
+            };
+        };
     </script>
 </body>
-<footer class="site-footer">
-    <div class="footer-content">by alexpestyshev</div>
-</footer>
+</html>
