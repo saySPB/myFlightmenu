@@ -18,7 +18,6 @@
             --btn-danger-hover: #b71c1c;
             --border-color: #455a64;
         }
-
         body.light-theme {
             --bg-color: #f5f5f5;
             --text-color: #333333;
@@ -31,7 +30,9 @@
             --btn-danger-hover: #b71c1c;
             --border-color: #bdbdbd;
         }
-
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Open Sans', sans-serif;
             margin: 0;
@@ -43,8 +44,9 @@
             align-items: center;
             min-height: 100vh;
             transition: background 0.3s ease, color 0.3s ease;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
-
         .header {
             display: flex;
             align-items: center;
@@ -54,19 +56,16 @@
             top: 0;
             z-index: 1000;
         }
-
         .header-content {
             display: flex;
             width: 100%;
             align-items: center;
             justify-content: space-around;
         }
-
         .header-buttons {
             display: flex;
             gap: 10px;
         }
-
         h1 {
             font-family: 'Playfair Display', serif;
             text-align: center;
@@ -78,84 +77,12 @@
             letter-spacing: 1px;
             flex-grow: 1;
         }
-
-        .item-text {
-            display: inline-block;
-            margin-left: 10px;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            background: var(--item-bg);
-            border-radius: 6px;
-            margin: 0 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .tab.active {
-            background: var(--accent-color);
-            color: var(--bg-color);
-        }
-
-        .tab:hover {
-            background: #3e5a74;
-        }
-
-        .seat-navigation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-            gap: 20px;
-        }
-
-        .nav-button {
-            padding: 10px 20px;
-            background: var(--btn-primary);
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .nav-button:hover {
-            background: var(--btn-primary-hover);
-            transform: translateY(-2px);
-        }
-
-        .nav-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #seat-counter {
-            font-size: 1.2em;
-            color: var(--accent-color);
-        }
-
         .food-counter {
             display: flex;
             gap: 15px;
             align-items: center;
             margin: 20px 0;
         }
-
         .food-counter-item {
             display: flex;
             flex-direction: column;
@@ -166,13 +93,11 @@
             min-width: 80px;
             position: relative;
         }
-
         .food-counter-item span {
             font-size: 1.2em;
             color: var(--accent-color);
             font-weight: 600;
         }
-
         .food-counter-item div {
             font-size: 0.9em;
             text-align: center;
@@ -181,11 +106,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .food-counter-item:hover .tooltip {
             display: block;
         }
-
         .tooltip {
             display: none;
             position: absolute;
@@ -200,7 +123,58 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             white-space: normal;
         }
-
+        .seat-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+        .nav-button {
+            padding: 10px 20px;
+            background: var(--btn-primary);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .nav-button:hover {
+            background: var(--btn-primary-hover);
+            transform: translateY(-2px);
+        }
+        .nav-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #seat-counter {
+            font-size: 1.2em;
+            color: var(--accent-color);
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: var(--item-bg);
+            border-radius: 6px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .tab.active {
+            background: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .tab:hover {
+            background: #3e5a74;
+        }
         .menu-container {
             display: flex;
             width: 100%;
@@ -208,7 +182,6 @@
             margin: 20px;
             justify-content: space-between;
         }
-
         .menu-seat {
             background: var(--card-bg);
             border-radius: 10px;
@@ -217,11 +190,9 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
         }
-
         .menu-seat:hover {
             transform: translateY(-5px);
         }
-
         .menu-seat h3 {
             color: var(--accent-color);
             font-size: 1.8em;
@@ -231,18 +202,15 @@
             display: flex;
             align-items: center;
         }
-
         .menu-seat h4 {
             color: var(--text-color);
             font-size: 1.4em;
             margin: 20px 0 10px;
             padding: 0;
         }
-
         .menu-item-container {
             position: relative;
         }
-
         .menu-item-container label {
             display: block;
             margin: 10px 0;
@@ -252,96 +220,51 @@
             cursor: pointer;
             transition: background 0.3s ease, transform 0.2s ease;
         }
-
         .menu-item-container label:hover {
             background: #3e5a74;
             transform: translateX(5px);
         }
-
-        .info-icon {
-            display: inline-block;
-            margin-left: 5px;
-            font-size: 14px;
-            color: var(--accent-color);
-            cursor: pointer;
-            position: relative;
-        }
-
-        /* Увеличение области нажатия чекбоксов */
         input[type="checkbox"] {
             width: 20px;
             height: 20px;
             margin-right: 10px;
-            position: relative;
             cursor: pointer;
-            /* Добавляем плавную анимацию */
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
-        /* Визуальная обратная связь при нажатии */
         input[type="checkbox"]:active {
             transform: scale(0.9);
             box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
         }
-
-        /* Увеличение области клика с помощью псевдоэлемента */
         .main-label, .subitem-label {
             position: relative;
-            padding: 10px 15px; /* Увеличиваем padding для большей области нажатия */
+            padding: 10px 15px;
             display: flex;
             align-items: center;
         }
-
-        /* Стили для предотвращения выделения текста при быстром касании */
         .item-text, .subitem-label {
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
         }
-
-        /* Скрытие подменю при скроллинге */
-        .menu-item-container.active {
-            transition: opacity 0.3s ease;
-        }
-
-        /* Увеличение области касания для меток */
-        .main-label::before, .subitem-label::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
-            z-index: -1; /* Помещаем под содержимым */
-        }
         .subitems {
             margin-left: 20px;
             display: none;
             opacity: 0;
-            transition: opacity 0.3s ease;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease, opacity 0.3s ease;
         }
-
         .menu-item-container.active .subitems {
             display: block;
             opacity: 1;
-            max-height: 500px; /* Достаточно большое значение, чтобы вместить все подпункты */
+            max-height: 500px;
         }
-
         .selected-subitems {
             margin-left: 20px;
             color: var(--accent-color);
             font-style: italic;
         }
-
-        .buttons {
-            text-align: center;
-            margin: 20px 0;
-        }
-
         .btn {
             padding: 10px 20px;
             cursor: pointer;
@@ -356,16 +279,13 @@
             text-transform: uppercase;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-
         .btn:hover {
             background: var(--btn-primary-hover);
             transform: translateY(-2px);
         }
-
         .save-button {
             padding: 12px 30px;
         }
-
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -376,7 +296,6 @@
             z-index: 999;
             display: none;
         }
-
         .modal {
             position: fixed;
             top: 50%;
@@ -392,22 +311,14 @@
             overflow-y: auto;
             color: var(--text-color);
         }
-
         .modal h3 {
             color: var(--accent-color);
             margin-top: 0;
             font-size: 1.8em;
         }
-
         .editor-section {
             margin-bottom: 20px;
         }
-
-        .editor-section h4 {
-            color: var(--text-color);
-            margin: 10px 0;
-        }
-
         .editor-section input {
             padding: 8px;
             margin: 5px 0;
@@ -417,19 +328,15 @@
             color: var(--text-color);
             width: 100%;
         }
-
         .editor-section .btn {
             padding: 5px 10px;
         }
-
         .modal-button.close-button {
             background: var(--btn-danger);
         }
-
         .modal-button.close-button:hover {
             background: var(--btn-danger-hover);
         }
-
         .back-button {
             background: var(--btn-primary);
             font-size: 1.5em;
@@ -442,29 +349,10 @@
             justify-content: center;
             margin-right: 10px;
         }
-
         .back-button:hover {
             background: var(--btn-primary-hover);
             transform: scale(1.1);
         }
-
-        .settings-button {
-            background: #455a64;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2em;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 10px;
-        }
-
-        .settings-button:hover {
-            background: #37474f;
-            transform: scale(1.1);
-        }
-
         .passenger-name-container {
             margin: 10px 0;
             padding: 10px;
@@ -475,12 +363,10 @@
             align-items: center;
             transition: transform 0.3s ease, background 0.3s ease;
         }
-
         .passenger-name-container:hover {
             transform: translateY(-2px);
             background: var(--item-bg);
         }
-
         .passenger-name-container label {
             margin-right: 10px;
             font-weight: 600;
@@ -488,7 +374,6 @@
             font-family: 'Open Sans', sans-serif;
             white-space: nowrap;
         }
-
         .passenger-name {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -500,13 +385,15 @@
             transition: all 0.3s ease;
             font-size: 1em;
         }
-
         .passenger-name:focus {
             border-color: var(--accent-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
         }
-
+        .passenger-name.saved {
+            border-color: var(--accent-color) !important;
+            transition: border-color 0.3s ease;
+        }
         .custom-subitem-input {
             position: relative;
             z-index: 1;
@@ -517,133 +404,107 @@
             border-radius: 6px;
             width: calc(100% - 18px);
             font-size: 1em;
-            transition: none; /* Отключаем анимации для этого элемента */
+            transition: none;
         }
-
         @media (max-width: 768px) {
             .menu-container {
                 flex-direction: row;
                 justify-content: space-between;
                 margin: 10px;
             }
-            
             .menu-seat {
                 width: 48%;
                 padding: 15px;
                 margin-bottom: 0;
             }
-            
             .menu-seat h3 {
                 font-size: 1.5em;
             }
-            
             .menu-seat h4 {
                 font-size: 1.2em;
             }
-            
             .passenger-name-container {
                 flex-direction: column;
                 align-items: center;
             }
-            
             .passenger-name {
                 width: 150px;
                 font-size: 0.9em;
             }
-            
             .menu-item-container label {
                 padding: 8px;
                 font-size: 0.9em;
             }
-            
             input[type="checkbox"] {
                 width: 18px;
                 height: 18px;
             }
-            
             .subitems {
                 margin-left: 15px;
             }
-            
             .selected-subitems {
                 margin-left: 15px;
                 font-size: 0.85em;
             }
-            
             .btn {
                 padding: 8px 15px;
                 font-size: 0.9em;
             }
-            
             .save-button {
                 padding: 10px 25px;
             }
-            
             .seat-navigation {
                 gap: 10px;
             }
-            
             .nav-button {
                 padding: 8px 15px;
                 font-size: 0.9em;
             }
-            
             .food-counter {
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            
             .food-counter-item {
                 min-width: 60px;
                 padding: 6px 10px;
             }
-            
             .food-counter-item span {
                 font-size: 1em;
             }
-            
             .food-counter-item div {
                 font-size: 0.8em;
                 max-width: 80px;
             }
         }
-
         @media (max-width: 480px) {
             .menu-seat {
                 width: 48%;
                 padding: 10px;
             }
-            
             .menu-seat h3 {
                 font-size: 1.3em;
             }
-            
             .passenger-name {
                 width: 120px;
                 font-size: 0.85em;
             }
-            
             .menu-item-container label {
                 padding: 6px;
                 font-size: 0.85em;
             }
-            
             .btn {
                 margin-top: 25px;
                 padding: 10px 12px;
                 font-size: 0.85em;
             }
-            
             .nav-button {
                 padding: 6px 12px;
                 font-size: 0.85em;
             }
-            
             .food-counter-item {
                 min-width: 50px;
                 padding: 5px 8px;
             }
-            
             .food-counter-item div {
                 max-width: 60px;
             }
@@ -651,20 +512,19 @@
     </style>
 </head>
 <body>
-
     <div class="food-counter" id="hot-food-counter"></div>
     <div class="header">
         <div class="header-content">
             <div class="header-buttons">
-                <button class="back-button btn" onclick="goBackToIndex()">← Назад</button>
-                <button class="save-button btn" onclick="saveChanges()">Сохранить</button>
+                <button class="back-button btn" onclick="goBackToIndex()" aria-label="Вернуться">← Назад</button>
+                <button class="save-button btn" onclick="saveChanges()" aria-label="Сохранить">Сохранить</button>
             </div>
         </div>
     </div>
     <div class="seat-navigation">
-        <button class="nav-button" id="prev-seat" onclick="prevSeat()" disabled>← Предыдущее</button>
+        <button class="nav-button" id="prev-seat" onclick="prevSeat()" disabled aria-label="Предыдущее место">← Предыдущее</button>
         <div id="seat-counter">1 / 1</div>
-        <button class="nav-button" id="next-seat" onclick="nextSeat()" disabled>Следующее →</button>
+        <button class="nav-button" id="next-seat" onclick="nextSeat()" disabled aria-label="Следующее место">Следующее →</button>
     </div>
 
     <div class="tabs" id="cycle-tabs"></div>
@@ -687,6 +547,23 @@
     </div>
 
     <script>
+        /* ----------  utils & init  ---------- */
+        const debounce = (fn, t = 250) => {
+            let timer;
+            return (...a) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...a), t);
+            };
+        };
+        const safeJSON = (key, def = {}) => {
+            try {
+                return JSON.parse(localStorage.getItem(key)) ?? def;
+            } catch {
+                return def;
+            }
+        };
+
+        /* ----------  state  ---------- */
         let hotFoodCounts = {};
         const menuContainer = document.getElementById('menu-container');
         const menuSeat1 = document.getElementById('menu-seat-1');
@@ -694,16 +571,15 @@
         const cycleTabs = document.getElementById('cycle-tabs');
         const editorSections = document.getElementById('editor-sections');
         const globalSubItemsContainer = document.getElementById('global-subitems');
-        
-        // Сохраняем порядок мест как в index.html
-        let currentSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
-        const menuData = JSON.parse(localStorage.getItem('menuData')) || {};
-        const cycles = JSON.parse(localStorage.getItem('cycles')) || [];
+
+        let currentSeats = safeJSON('selectedSeats', []);
+        const menuData = safeJSON('menuData', {});
+        const cycles = safeJSON('cycles', []);
         let selectedCycle = cycles[0] || '';
 
         let savedMenus = {};
-        currentSeats.forEach(seat => {
-            savedMenus[seat] = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
+        currentSeats.forEach(s => {
+            savedMenus[s] = safeJSON(`menu_${s}`, {});
         });
 
         let currentSeatIndex = 0;
@@ -711,143 +587,108 @@
         const nextSeatBtn = document.getElementById('next-seat');
         const seatCounter = document.getElementById('seat-counter');
 
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-theme');
-        }
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-theme');
 
-        // Debounce function to limit resize event frequency
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        /* ----------  passengers  ---------- */
+        const getPassengerName = seat => savedMenus[seat]?.passengerName || '';
 
-        function getPassengerName(seat) {
-            const savedMenu = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
-            return savedMenu.passengerName || '';
-        }
-
-        function savePassengerName(input, seat) {
+        const savePassengerName = (input, seat) => {
             const name = input.value.trim();
             savedMenus[seat] = savedMenus[seat] || {};
             savedMenus[seat].passengerName = name;
             localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-
-            // ✅ Безопасная визуальная обратная связь
             input.classList.add('saved');
             setTimeout(() => input.classList.remove('saved'), 1000);
-        }
+        };
 
-        function initHotFoodCounter(cycleData) {
+        /* ----------  hot-food counter  ---------- */
+        const initHotFoodCounter = cycleData => {
             hotFoodCounts = {};
-            if (cycleData.sections['Горячее блюдо']) {
-                cycleData.sections['Горячее блюдо'].forEach(item => {
-                    hotFoodCounts[item] = 0;
+            (cycleData.sections?.['Горячее блюдо'] || []).forEach(item => {
+                hotFoodCounts[item] = 0;
+            });
+            currentSeats.forEach(seat => {
+                const menu = savedMenus[seat] || {};
+                Object.entries(menu).forEach(([item, data]) => {
+                    if (data.section === 'Горячее блюдо' && data.checked) {
+                        hotFoodCounts[item] = (hotFoodCounts[item] || 0) + 1;
+                    }
                 });
+            });
+        };
 
-                // Подсчет выбранных горячих блюд из всех сохраненных мест
-                currentSeats.forEach(seat => {
-                    const menu = savedMenus[seat] || {};
-                    Object.entries(menu).forEach(([item, data]) => {
-                        if (data.section === 'Горячее блюдо' && data.checked) {
-                            hotFoodCounts[item] = (hotFoodCounts[item] || 0) + 1;
-                        }
-                    });
-                });
-            }
-        }
-
-        function updateHotFoodCounter() {
+        const updateHotFoodCounter = () => {
             const counterElement = document.getElementById('hot-food-counter');
             counterElement.innerHTML = '';
-            
-            const hotFoods = menuData[selectedCycle]?.sections['Горячее блюдо'] || [];
-            
+            const hotFoods = menuData[selectedCycle]?.sections?.['Горячее блюдо'] || [];
             hotFoods.forEach(item => {
                 const count = hotFoodCounts[item] || 0;
-                const displayName = item.length > 20 ? item.substring(0, 17) + '...' : item;
-                counterElement.innerHTML += `
+                const displayName = item.length > 20 ? item.substring(0, 17) + '…' : item;
+                counterElement.insertAdjacentHTML('beforeend', `
                     <div class="food-counter-item">
                         <span>${count}</span>
                         <div title="${item}">${displayName}</div>
                         ${item.length > 20 ? `<div class="tooltip">${item}</div>` : ''}
                     </div>
-                `;
+                `);
             });
-            
-            counterElement.style.display = hotFoods.length > 0 ? 'flex' : 'none';
-        }
+            counterElement.style.display = hotFoods.length ? 'flex' : 'none';
+        };
 
-        function updateNavigation() {
+        /* ----------  navigation  ---------- */
+        const updateNavigation = () => {
             const totalPairs = Math.max(1, currentSeats.length - 1);
             const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
-            
             seatCounter.textContent = `${currentPair + 1} / ${totalPairs}`;
-            
-            // Инициализация счетчика горячих блюд для текущего цикла
             initHotFoodCounter(menuData[selectedCycle] || { sections: {} });
-            
             renderSeat(currentSeats[currentSeatIndex], menuSeat1);
-            
             if (currentSeatIndex < currentSeats.length - 1) {
                 menuSeat2.style.display = 'block';
                 renderSeat(currentSeats[currentSeatIndex + 1], menuSeat2);
             } else {
                 menuSeat2.style.display = 'none';
             }
-            
             prevSeatBtn.disabled = currentSeatIndex === 0;
             nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
-            
             updateHotFoodCounter();
-        }
+        };
 
-        function nextSeat() {
+        const nextSeat = () => {
             saveCurrentSeat();
             if (currentSeatIndex < currentSeats.length - 2) {
                 currentSeatIndex++;
                 updateNavigation();
             }
-        }
+        };
 
-        function prevSeat() {
+        const prevSeat = () => {
             saveCurrentSeat();
             if (currentSeatIndex > 0) {
                 currentSeatIndex--;
                 updateNavigation();
             }
-        }
+        };
 
-        function saveCurrentSeat() {
+        /* ----------  data collect  ---------- */
+        const saveCurrentSeat = () => {
             const currentSeat = currentSeats[currentSeatIndex];
             savedMenus[currentSeat] = collectSeatData(currentSeat);
             localStorage.setItem(`menu_${currentSeat}`, JSON.stringify(savedMenus[currentSeat]));
-        }
+        };
 
-        function collectSeatData(seatNumber) {
+        const collectSeatData = seatNumber => {
             const data = {};
             const passengerNameInput = document.querySelector(`.passenger-name[data-seat="${seatNumber}"]`);
-            
-            if (passengerNameInput) {
-                data.passengerName = passengerNameInput.value.trim();
-            }
-            
-            const containers = document.querySelectorAll(`.menu-item-container[data-seat="${seatNumber}"]`);
-            
-            containers.forEach(container => {
-                const itemName = container.getAttribute('data-item');
-                const sectionName = container.getAttribute('data-section');
+            if (passengerNameInput) data.passengerName = passengerNameInput.value.trim();
+
+            document.querySelectorAll(`.menu-item-container[data-seat="${seatNumber}"]`).forEach(container => {
+                const itemName = container.dataset.item;
+                const sectionName = container.dataset.section;
                 const checkbox = container.querySelector('.main-label input[type="checkbox"]');
                 const selectedSubitems = Array.from(container.querySelectorAll('.subitem-label input[type="checkbox"]:checked'))
-                    .map(input => input.closest('.subitem-label').textContent.trim());
-                
-                if (checkbox.checked || selectedSubitems.length > 0) {
+                    .map(inp => inp.closest('.subitem-label').textContent.trim());
+
+                if (checkbox.checked || selectedSubitems.length) {
                     data[itemName] = {
                         checked: checkbox.checked,
                         subitems: selectedSubitems,
@@ -856,48 +697,47 @@
                     };
                 }
             });
-            
             return data;
-        }
+        };
 
-        function renderSeat(seatNumber, container) {
+        /* ----------  render  ---------- */
+        const renderSeat = (seatNumber, container) => {
             const seatData = savedMenus[seatNumber] || {};
             const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-            
+
             container.innerHTML = `
                 <h3>Место: ${seatNumber}</h3>
                 <div class="passenger-name-container">
                     <label for="passenger-name-${seatNumber}">Имя пассажира:</label>
-                    <input type="text" class="passenger-name" id="passenger-name-${seatNumber}" 
-                        placeholder="Введите имя пассажира" 
+                    <input type="text" class="passenger-name" id="passenger-name-${seatNumber}"
+                        placeholder="Введите имя пассажира"
                         value="${getPassengerName(seatNumber)}"
                         data-seat="${seatNumber}"
                         oninput="savePassengerName(this, '${seatNumber}')"
                         aria-label="Имя пассажира для места ${seatNumber}">
                 </div>
             `;
-            
-            if (Object.keys(cycleData.sections).length === 0) {
-                container.innerHTML += '<p>Меню пустое. Настройте его через редактор.</p>';
+
+            if (!Object.keys(cycleData.sections).length) {
+                container.insertAdjacentHTML('beforeend', '<p>Меню пустое. Настройте его через редактор.</p>');
                 return;
             }
-            
+
             Object.keys(cycleData.sections).forEach(sectionName => {
-                container.innerHTML += `<h4>${sectionName}</h4>`;
+                container.insertAdjacentHTML('beforeend', `<h4>${sectionName}</h4>`);
                 cycleData.sections[sectionName].forEach(item => {
                     renderMenuItem(container, seatNumber, sectionName, item, seatData, cycleData);
                 });
             });
-            
             attachEventListeners(container);
-        }
+        };
 
-        function renderMenuItem(container, seat, sectionName, item, seatData, cycleData) {
+        const renderMenuItem = (container, seat, sectionName, item, seatData, cycleData) => {
             const isChecked = seatData[item]?.checked ? 'checked' : '';
             const selectedSubitems = seatData[item]?.subitems || [];
             const itemSubitems = cycleData.subitems[item] || [];
-            
-            container.innerHTML += `
+
+            container.insertAdjacentHTML('beforeend', `
                 <div class="menu-item-container" data-item="${item}" data-seat="${seat}" data-section="${sectionName}">
                     <label class="main-label">
                         <input type="checkbox" ${isChecked}>
@@ -910,74 +750,64 @@
                                 ${sub}
                             </label>
                         `).join('')}
-                        <input type="text" class="custom-subitem-input" placeholder="Добавить свой вариант" 
+                        <input type="text" class="custom-subitem-input" placeholder="Добавить свой вариант"
                             data-item="${item}" data-seat="${seat}" data-section="${sectionName}"
                             onkeydown="handleCustomSubitemKeypress(event, this)">
                     </div>
                     <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
                 </div>
-            `;
-        }
+            `);
+        };
 
-        function handleCustomSubitemKeypress(event, input) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
+        /* ----------  events  ---------- */
+        const handleCustomSubitemKeypress = (event, input) => {
+            if (event.key !== 'Enter') return;
+            event.preventDefault();
+            const subitemText = input.value.trim();
+            if (!subitemText) return;
 
-        const subitemText = input.value.trim();
-        if (!subitemText) return;
+            const item = input.dataset.item;
+            const seat = input.dataset.seat;
+            const sectionName = input.dataset.section;
+            const isFocused = document.activeElement === input;
+            const cursorPos = input.selectionStart;
 
-        const item = input.dataset.item;
-        const seat = input.dataset.seat;
-        const sectionName = input.dataset.section;
+            savedMenus[seat] = savedMenus[seat] || {};
+            savedMenus[seat][item] = savedMenus[seat][item] || { subitems: [], section: sectionName };
 
-        const isFocused = document.activeElement === input;
-        const cursorPos = input.selectionStart;
-
-        const menuData = savedMenus[seat] || {};
-        menuData[item] = menuData[item] || { subitems: [], section: sectionName };
-
-        if (!menuData[item].subitems.includes(subitemText)) {
-            menuData[item].subitems.push(subitemText);
-
-            const container = input.closest('.menu-item-container');
-            if (container) {
-                const selectedSubitemsDiv = container.querySelector('.selected-subitems');
-                if (selectedSubitemsDiv) {
-                    selectedSubitemsDiv.innerHTML = menuData[item].subitems.map(sub => `<div>${sub}</div>`).join('');
+            if (!savedMenus[seat][item].subitems.includes(subitemText)) {
+                savedMenus[seat][item].subitems.push(subitemText);
+                const container = input.closest('.menu-item-container');
+                if (container) {
+                    const selectedSubitemsDiv = container.querySelector('.selected-subitems');
+                    if (selectedSubitemsDiv) {
+                        selectedSubitemsDiv.innerHTML = savedMenus[seat][item].subitems.map(sub => `<div>${sub}</div>`).join('');
+                    }
+                }
+                const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+                if (!Array.isArray(cycleData.subitems[item])) cycleData.subitems[item] = [];
+                if (!cycleData.subitems[item].includes(subitemText)) {
+                    cycleData.subitems[item].push(subitemText);
+                    menuData[selectedCycle] = cycleData;
+                    localStorage.setItem('menuData', JSON.stringify(menuData));
                 }
             }
-
-            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-            if (!Array.isArray(cycleData.subitems[item])) {
-                cycleData.subitems[item] = [];
+            input.value = '';
+            if (isFocused && input.type === 'text') {
+                setTimeout(() => {
+                    input.focus();
+                    input.setSelectionRange(cursorPos, cursorPos);
+                }, 0);
             }
-            if (!cycleData.subitems[item].includes(subitemText)) {
-                cycleData.subitems[item].push(subitemText);
-                menuData[selectedCycle] = cycleData;
-                localStorage.setItem('menuData', JSON.stringify(menuData));
-            }
-        }
+            localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+        };
 
-        savedMenus[seat] = menuData;
-        input.value = '';
+        const updateCheckbox = (checkbox, itemName, currentSeat, sectionName) => {
+            const menu = savedMenus[currentSeat] || {};
+            const wasChecked = menu[itemName]?.checked || false;
+            menu[itemName] = menu[itemName] || { subitems: [], section: sectionName };
+            menu[itemName].checked = checkbox.checked;
 
-        if (isFocused && input.tagName === 'INPUT' && input.type === 'text') {
-            setTimeout(() => {
-                input.focus();
-                input.setSelectionRange(cursorPos, cursorPos);
-            }, 0);
-        }
-
-        localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-    }
-}
-
-        function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
-            const menuData = savedMenus[currentSeat] || {};
-            const wasChecked = menuData[itemName]?.checked || false;
-            menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
-            menuData[itemName].checked = checkbox.checked;
-            
             if (sectionName === 'Горячее блюдо') {
                 if (checkbox.checked && !wasChecked) {
                     hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
@@ -986,304 +816,262 @@
                 }
                 updateHotFoodCounter();
             }
-            
             if (!checkbox.checked) {
-                menuData[itemName].subitems = [];
+                menu[itemName].subitems = [];
                 const container = checkbox.closest('.menu-item-container');
                 if (container) {
                     container.querySelector('.selected-subitems').innerHTML = '';
-                    container.querySelectorAll('.subitem-label input[type="checkbox"]').forEach(subCheckbox => {
-                        subCheckbox.checked = false;
-                    });
+                    container.querySelectorAll('.subitem-label input[type="checkbox"]').forEach(cb => cb.checked = false);
                 }
             }
-            
-            const currentContainer = checkbox.closest('.menu-item-container');
-            const selectedSubitemsDiv = currentContainer.querySelector('.selected-subitems');
+            const selectedSubitemsDiv = checkbox.closest('.menu-item-container').querySelector('.selected-subitems');
             if (selectedSubitemsDiv) {
-                selectedSubitemsDiv.innerHTML = menuData[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
+                selectedSubitemsDiv.innerHTML = menu[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
             }
-            
-            savedMenus[currentSeat] = menuData;
-        }
+            savedMenus[currentSeat] = menu;
+        };
 
-        function attachEventListeners(container) {
-        const items = container.querySelectorAll('.menu-item-container');
-        let holdTimer;
-        let isScrolling = false;
-        let startX, startY;
-
-        items.forEach(item => {
-            const mainLabel = item.querySelector('.main-label');
-            const mainCheckbox = mainLabel.querySelector('input[type="checkbox"]');
-            const itemName = item.getAttribute('data-item');
-            const seat = item.getAttribute('data-seat');
-            const sectionName = item.getAttribute('data-section');
-            const subitemLabels = item.querySelectorAll('.subitem-label');
-
-            mainLabel.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'INPUT') {
-                    e.preventDefault();
-                    mainCheckbox.checked = !mainCheckbox.checked;
-                    updateCheckbox(mainCheckbox, itemName, seat, sectionName);
-                }
-            });
-
-            subitemLabels.forEach(label => {
-                const subCheckbox = label.querySelector('input[type="checkbox"]');
-                const subitemText = label.textContent.trim();
-                
-                label.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'INPUT') {
-                        e.preventDefault();
-                        subCheckbox.checked = !subCheckbox.checked;
-                        toggleSubitem(subCheckbox, itemName, subitemText, seat, sectionName);
-                    }
-                });
-            });
-
-            const handleHoldStart = (e) => {
-                // Запоминаем начальные координаты
-                startX = e.clientX || e.touches[0].clientX;
-                startY = e.clientY || e.touches[0].clientY;
-                isScrolling = false;
-                
-                holdTimer = setTimeout(() => {
-                    if (!isScrolling) {
-                        item.classList.toggle('active');
-                    }
-                }, 700);
-            };
-
-            const handleMove = (e) => {
-                if (!holdTimer) return;
-                
-                // Проверяем, было ли движение (прокрутка)
-                const currentX = e.clientX || e.touches[0].clientX;
-                const currentY = e.clientY || e.touches[0].clientY;
-                const diffX = Math.abs(currentX - startX);
-                const diffY = Math.abs(currentY - startY);
-                
-                // Если движение значительное - считаем это прокруткой
-                if (diffX > 5 || diffY > 5) {
-                    isScrolling = true;
-                    clearTimeout(holdTimer);
-                }
-            };
-
-            const handleHoldEnd = () => {
-                clearTimeout(holdTimer);
-            };
-
-            mainLabel.addEventListener('touchstart', handleHoldStart);
-            mainLabel.addEventListener('touchmove', handleMove);
-            mainLabel.addEventListener('touchend', handleHoldEnd);
-            mainLabel.addEventListener('mousedown', handleHoldStart);
-            mainLabel.addEventListener('mousemove', handleMove);
-            mainLabel.addEventListener('mouseup', handleHoldEnd);
-            mainLabel.addEventListener('mouseleave', handleHoldEnd);
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!container.contains(e.target)) {
-                items.forEach(item => {
-                    if (item.classList.contains('active')) {
-                        item.classList.remove('active');
-                    }
-                });
-            }
-        });
-    }
-
-        function toggleSubitem(checkbox, itemName, subitemText, currentSeat, sectionName) {
+        const toggleSubitem = (checkbox, itemName, subitemText, currentSeat, sectionName) => {
             const container = checkbox.closest('.menu-item-container');
             const selectedSubitemsDiv = container.querySelector('.selected-subitems');
-            const menuData = savedMenus[currentSeat] || {};
-            menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
+            savedMenus[currentSeat] = savedMenus[currentSeat] || {};
+            savedMenus[currentSeat][itemName] = savedMenus[currentSeat][itemName] || { subitems: [], section: sectionName };
 
             if (checkbox.checked) {
-                if (!menuData[itemName].subitems.includes(subitemText)) {
-                    menuData[itemName].subitems.push(subitemText);
+                if (!savedMenus[currentSeat][itemName].subitems.includes(subitemText)) {
+                    savedMenus[currentSeat][itemName].subitems.push(subitemText);
                 }
             } else {
-                menuData[itemName].subitems = menuData[itemName].subitems.filter(sub => sub !== subitemText);
+                savedMenus[currentSeat][itemName].subitems = savedMenus[currentSeat][itemName].subitems.filter(sub => sub !== subitemText);
             }
-            selectedSubitemsDiv.innerHTML = menuData[itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
-            
-            savedMenus[currentSeat] = menuData;
-        }
+            selectedSubitemsDiv.innerHTML = savedMenus[currentSeat][itemName].subitems.map(sub => `<div>${sub}</div>`).join('');
+        };
 
-        function saveChanges() {
+        const attachEventListeners = container => {
+            const items = container.querySelectorAll('.menu-item-container');
+            let holdTimer, isScrolling, startX, startY;
+
+            items.forEach(item => {
+                const mainLabel = item.querySelector('.main-label');
+                const mainCheckbox = mainLabel.querySelector('input[type="checkbox"]');
+                const itemName = item.dataset.item;
+                const seat = item.dataset.seat;
+                const sectionName = item.dataset.section;
+
+                mainLabel.addEventListener('click', e => {
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        mainCheckbox.checked = !mainCheckbox.checked;
+                        updateCheckbox(mainCheckbox, itemName, seat, sectionName);
+                    }
+                });
+
+                item.querySelectorAll('.subitem-label').forEach(label => {
+                    const subCheckbox = label.querySelector('input[type="checkbox"]');
+                    const subitemText = label.textContent.trim();
+                    label.addEventListener('click', e => {
+                        if (e.target.tagName !== 'INPUT') {
+                            e.preventDefault();
+                            subCheckbox.checked = !subCheckbox.checked;
+                            toggleSubitem(subCheckbox, itemName, subitemText, seat, sectionName);
+                        }
+                    });
+                });
+
+                const handleHoldStart = e => {
+                    startX = e.clientX || e.touches[0].clientX;
+                    startY = e.clientY || e.touches[0].clientY;
+                    isScrolling = false;
+                    holdTimer = setTimeout(() => {
+                        if (!isScrolling) item.classList.toggle('active');
+                    }, 700);
+                };
+                const handleMove = e => {
+                    if (!holdTimer) return;
+                    const currentX = e.clientX || e.touches[0].clientX;
+                    const currentY = e.clientY || e.touches[0].clientY;
+                    if (Math.abs(currentX - startX) > 5 || Math.abs(currentY - startY) > 5) {
+                        isScrolling = true;
+                        clearTimeout(holdTimer);
+                    }
+                };
+                const handleHoldEnd = () => clearTimeout(holdTimer);
+
+                mainLabel.addEventListener('touchstart', handleHoldStart);
+                mainLabel.addEventListener('touchmove', handleMove);
+                mainLabel.addEventListener('touchend', handleHoldEnd);
+                mainLabel.addEventListener('mousedown', handleHoldStart);
+                mainLabel.addEventListener('mousemove', handleMove);
+                mainLabel.addEventListener('mouseup', handleHoldEnd);
+                mainLabel.addEventListener('mouseleave', handleHoldEnd);
+            });
+
+            document.addEventListener('click', e => {
+                if (!container.contains(e.target)) {
+                    items.forEach(item => item.classList.remove('active'));
+                }
+            });
+        };
+
+        /* ----------  save / exit  ---------- */
+        const saveChanges = () => {
             saveCurrentSeat();
-                    if (currentSeatIndex < currentSeats.length - 1) {
-            const nextSeat = currentSeats[currentSeatIndex + 1];
-            savedMenus[nextSeat] = collectSeatData(nextSeat);
-            localStorage.setItem(`menu_${nextSeat}`, JSON.stringify(savedMenus[nextSeat]));
-        }
-        
-        currentSeats.forEach(seat => {
-            localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
-        });
-        
-        let savedSeats = JSON.parse(localStorage.getItem('savedSeats')) || [];
-        currentSeats.forEach(seat => {
-            if (!savedSeats.includes(seat)) {
-                savedSeats.push(seat);
+            if (currentSeatIndex < currentSeats.length - 1) {
+                const nextSeat = currentSeats[currentSeatIndex + 1];
+                savedMenus[nextSeat] = collectSeatData(nextSeat);
+                localStorage.setItem(`menu_${nextSeat}`, JSON.stringify(savedMenus[nextSeat]));
             }
-        });
-        localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
-        
-        localStorage.setItem('selectedSeats', JSON.stringify([]));
-        
-        alert('Изменения сохранены для всех выбранных мест!');
-        window.location.href = 'index.html';
-    }
-
-    function goBackToIndex() {
-        if (confirm('Вернуться без сохранения изменений?')) {
+            currentSeats.forEach(seat => {
+                localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+            });
+            let savedSeats = safeJSON('savedSeats', []);
+            currentSeats.forEach(seat => {
+                if (!savedSeats.includes(seat)) savedSeats.push(seat);
+            });
+            localStorage.setItem('savedSeats', JSON.stringify(savedSeats));
+            localStorage.setItem('selectedSeats', JSON.stringify([]));
+            alert('Изменения сохранены для всех выбранных мест!');
             window.location.href = 'index.html';
-        }
-    }
+        };
 
-    function renderTabs() {
-        cycleTabs.innerHTML = '';
-        if (cycles.length === 0) {
-            cycleTabs.innerHTML = '<p>Нет доступных циклов. Подгрузите меню в настройках.</p>';
-            return;
-        }
-        cycles.forEach(cycle => {
-            const tab = document.createElement('div');
-            tab.className = `tab ${cycle === selectedCycle ? 'active' : ''}`;
-            tab.textContent = cycle;
-            tab.onclick = () => {
-                selectedCycle = cycle;
-                updateTabs();
-                updateNavigation();
-            };
-            cycleTabs.appendChild(tab);
-        });
-    }
+        const goBackToIndex = () => {
+            if (confirm('Вернуться без сохранения изменений?')) {
+                window.location.href = 'index.html';
+            }
+        };
 
-    function updateTabs() {
-        const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
-            tab.classList.toggle('active', tab.textContent === selectedCycle);
-        });
-    }
+        /* ----------  tabs & modal  ---------- */
+        const renderTabs = () => {
+            cycleTabs.innerHTML = '';
+            if (!cycles.length) {
+                cycleTabs.innerHTML = '<p>Нет доступных циклов. Подгрузите меню в настройках.</p>';
+                return;
+            }
+            cycles.forEach(cycle => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${cycle === selectedCycle ? 'active' : ''}`;
+                tab.textContent = cycle;
+                tab.onclick = () => {
+                    selectedCycle = cycle;
+                    updateTabs();
+                    updateNavigation();
+                };
+                cycleTabs.appendChild(tab);
+            });
+        };
 
-    function openSettingsModal() {
-        document.getElementById('settings-modal-overlay').style.display = 'block';
-        document.getElementById('settings-modal').style.display = 'block';
-        loadEditorSections();
-    }
+        const updateTabs = () => {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === selectedCycle);
+            });
+        };
 
-    function closeSettingsModal() {
-        document.getElementById('settings-modal-overlay').style.display = 'none';
-        document.getElementById('settings-modal').style.display = 'none';
-    }
+        const openSettingsModal = () => {
+            document.getElementById('settings-modal-overlay').style.display = 'block';
+            document.getElementById('settings-modal').style.display = 'block';
+            loadEditorSections();
+        };
 
-    function addSection() {
-        const sectionId = `section-${Date.now()}`;
-        editorSections.insertAdjacentHTML('beforeend', `
-            <div class="editor-section" id="${sectionId}">
-                <input type="text" placeholder="Название раздела" id="${sectionId}-name">
-                <div id="${sectionId}-items"></div>
-                <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
-                <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
-            </div>
-        `);
-    }
+        const closeSettingsModal = () => {
+            document.getElementById('settings-modal-overlay').style.display = 'none';
+            document.getElementById('settings-modal').style.display = 'none';
+        };
 
-    function addItem(sectionId) {
-        const itemId = `item-${Date.now()}`;
-        document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
-            <div class="menu-item" id="${itemId}">
-                <input type="text" placeholder="Название пункта" id="${itemId}-name">
-                <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
-            </div>
-        `);
-    }
-
-    function addGlobalSubItem() {
-        const subItemId = `subitem-${Date.now()}`;
-        globalSubItemsContainer.insertAdjacentHTML('beforeend', `
-            <div class="global-subitem" id="${subItemId}">
-                <input type="text" placeholder="Название подпункта" id="${subItemId}-name">
-                <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
-            </div>
-        `);
-    }
-
-    function loadEditorSections() {
-        const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-        editorSections.innerHTML = '';
-        globalSubItemsContainer.innerHTML = '';
-
-        Object.keys(cycleData.sections).forEach((sectionName, index) => {
-            const sectionId = `section-${Date.now()}-${index}`;
+        const addSection = () => {
+            const sectionId = `section-${Date.now()}`;
             editorSections.insertAdjacentHTML('beforeend', `
                 <div class="editor-section" id="${sectionId}">
-                    <input type="text" value="${sectionName}" id="${sectionId}-name">
+                    <input type="text" placeholder="Название раздела" id="${sectionId}-name">
                     <div id="${sectionId}-items"></div>
                     <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
                     <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
                 </div>
             `);
-            cycleData.sections[sectionName].forEach(item => {
-                const itemId = `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
-                    <div class="menu-item" id="${itemId}">
-                        <input type="text" value="${item}" id="${itemId}-name">
-                        <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
-                    </div>
-                `);
-            });
-        });
+        };
 
-        Object.values(cycleData.subitems).flat().forEach((subitem, index) => {
-            const subItemId = `subitem-${Date.now()}-${index}`;
+        const addItem = sectionId => {
+            const itemId = `item-${Date.now()}`;
+            document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
+                <div class="menu-item" id="${itemId}">
+                    <input type="text" placeholder="Название пункта" id="${itemId}-name">
+                    <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
+                </div>
+            `);
+        };
+
+        const addGlobalSubItem = () => {
+            const subItemId = `subitem-${Date.now()}`;
             globalSubItemsContainer.insertAdjacentHTML('beforeend', `
                 <div class="global-subitem" id="${subItemId}">
-                    <input type="text" value="${subitem}" id="${subItemId}-name">
+                    <input type="text" placeholder="Название подпункта" id="${subItemId}-name">
                     <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
                 </div>
             `);
-        });
-    }
-
-    function saveMenuSettings() {
-        const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
-        cycleData.sections = {};
-        document.querySelectorAll('.editor-section').forEach(section => {
-            const sectionName = section.querySelector('input').value;
-            const items = Array.from(section.querySelectorAll('.menu-item input')).map(input => input.value);
-            if (sectionName && items.length) cycleData.sections[sectionName] = items;
-        });
-        menuData[selectedCycle] = cycleData;
-        localStorage.setItem('menuData', JSON.stringify(menuData));
-        closeSettingsModal();
-        updateNavigation();
-    }
-
-    // Debounced resize handler
-    const debouncedUpdateNavigation = debounce(updateNavigation, 250);
-
-    window.addEventListener('resize', debouncedUpdateNavigation);
-
-    window.onload = function() {
-        renderTabs();
-        updateNavigation();
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeSettingsModal();
-            }
-        });
-        
-        document.getElementById('settings-modal-overlay').onclick = function(e) {
-            if (e.target === this) {
-                closeSettingsModal();
-            }
         };
-    };
-</script>
+
+        const loadEditorSections = () => {
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            editorSections.innerHTML = '';
+            globalSubItemsContainer.innerHTML = '';
+
+            Object.keys(cycleData.sections || {}).forEach((sectionName, index) => {
+                const sectionId = `section-${Date.now()}-${index}`;
+                editorSections.insertAdjacentHTML('beforeend', `
+                    <div class="editor-section" id="${sectionId}">
+                        <input type="text" value="${sectionName}" id="${sectionId}-name">
+                        <div id="${sectionId}-items"></div>
+                        <button class="btn" onclick="addItem('${sectionId}')">+ Добавить пункт</button>
+                        <button class="btn" onclick="document.getElementById('${sectionId}').remove()">- Удалить раздел</button>
+                    </div>
+                `);
+                cycleData.sections[sectionName].forEach(item => {
+                    const itemId = `item-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+                    document.getElementById(`${sectionId}-items`).insertAdjacentHTML('beforeend', `
+                        <div class="menu-item" id="${itemId}">
+                            <input type="text" value="${item}" id="${itemId}-name">
+                            <button class="btn" onclick="document.getElementById('${itemId}').remove()">- Удалить</button>
+                        </div>
+                    `);
+                });
+            });
+
+            Object.values(cycleData.subitems || {}).flat().forEach((subitem, index) => {
+                const subItemId = `subitem-${Date.now()}-${index}`;
+                globalSubItemsContainer.insertAdjacentHTML('beforeend', `
+                    <div class="global-subitem" id="${subItemId}">
+                        <input type="text" value="${subitem}" id="${subItemId}-name">
+                        <button class="btn" onclick="document.getElementById('${subItemId}').remove()">- Удалить</button>
+                    </div>
+                `);
+            });
+        };
+
+        const saveMenuSettings = () => {
+            const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
+            cycleData.sections = {};
+            document.querySelectorAll('.editor-section').forEach(section => {
+                const sectionName = section.querySelector('input').value.trim();
+                const items = Array.from(section.querySelectorAll('.menu-item input')).map(inp => inp.value.trim()).filter(Boolean);
+                if (sectionName && items.length) cycleData.sections[sectionName] = items;
+            });
+            menuData[selectedCycle] = cycleData;
+            localStorage.setItem('menuData', JSON.stringify(menuData));
+            closeSettingsModal();
+            updateNavigation();
+        };
+
+        /* ----------  start  ---------- */
+        window.addEventListener('resize', debounce(updateNavigation, 250));
+        window.onload = () => {
+            renderTabs();
+            updateNavigation();
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') closeSettingsModal();
+            });
+            document.getElementById('settings-modal-overlay').onclick = e => {
+                if (e.target === e.currentTarget) closeSettingsModal();
+            };
+        };
+    </script>
+</body>
+</html>
