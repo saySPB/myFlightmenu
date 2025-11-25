@@ -992,14 +992,27 @@ function updateNavigation(keepFocus = false) {
     const activeInput = document.activeElement;
     const wasFocused = activeInput && activeInput.classList.contains('passenger-name');
     const focusedSeat = wasFocused ? activeInput.getAttribute('data-seat') : null;
-
+if (wasFocused && focusedSeat === currentSeats[currentSeatIndex]) {
+  /* левая колонка не перерисовывается, только счётчики */
+  updateHotFoodCounter();
+  return;
+}
 // правую колонку рисуем ТОЛЬКО если в ней НЕ в фокусе имя
 if (currentSeatIndex < currentSeats.length - 1) {
   const nextSeat = currentSeats[currentSeatIndex + 1];
-  if (focusedSeat !== nextSeat) {          // <-- новое условие
-    menuSeat2.style.display = 'block';
-    renderSeat(nextSeat, menuSeat2);
-  }                           // иначе оставляем старое содержимое
+  menuSeat2.style.display = 'block';
+
+  /* рисуем всегда, но если в этом месте сейчас вводится имя – вернём фокус */
+  const needKeepFocus = wasFocused && focusedSeat === nextSeat;   // сохраняем флаг
+  renderSeat(nextSeat, menuSeat2);
+
+  if (needKeepFocus) {                                            // возвращаем курсор
+    const restoredInput = menuSeat2.querySelector('.passenger-name');
+    if (restoredInput) {
+      restoredInput.focus();
+      restoredInput.setSelectionRange(activeInput.selectionStart, activeInput.selectionEnd);
+    }
+  }
 } else {
   menuSeat2.style.display = 'none';
 }
