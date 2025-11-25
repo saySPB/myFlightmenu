@@ -979,56 +979,22 @@ function updateHotFoodCounter() {
     counterElement.style.display = hotFoods.length > 0 ? 'flex' : 'none';
 }
 
-function updateNavigation(keepFocus = false) {
-    const prevLanguage = currentLanguage;
-    
-    const totalPairs = Math.max(1, currentSeats.length - 1);
-    const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
-    
-    seatCounter.textContent = `${currentPair + 1} / ${totalPairs}`;
-    
-    initHotFoodCounter(menuData[selectedCycle] || { sections: {} });
-    
-    const activeInput = document.activeElement;
-    const wasFocused = activeInput && activeInput.classList.contains('passenger-name');
-    const focusedSeat = wasFocused ? activeInput.getAttribute('data-seat') : null;
-if (wasFocused && focusedSeat === currentSeats[currentSeatIndex]) {
-  /* левая колонка не перерисовывается, только счётчики */
-  updateHotFoodCounter();
-  return;
-}
-// правую колонку рисуем ТОЛЬКО если в ней НЕ в фокусе имя
-if (currentSeatIndex < currentSeats.length - 1) {
-  const nextSeat = currentSeats[currentSeatIndex + 1];
-  menuSeat2.style.display = 'block';
+function updateNavigation() {
+  const totalPairs = Math.max(1, currentSeats.length - 1);
+  const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
+  seatCounter.textContent = `${currentPair + 1} / ${totalPairs}`;
 
-  /* рисуем всегда, но если в этом месте сейчас вводится имя – вернём фокус */
-  const needKeepFocus = wasFocused && focusedSeat === nextSeat;   // сохраняем флаг
-  renderSeat(nextSeat, menuSeat2);
-
-  if (needKeepFocus) {                                            // возвращаем курсор
-    const restoredInput = menuSeat2.querySelector('.passenger-name');
-    if (restoredInput) {
-      restoredInput.focus();
-      restoredInput.setSelectionRange(activeInput.selectionStart, activeInput.selectionEnd);
-    }
+  renderSeat(currentSeats[currentSeatIndex], menuSeat1);           // левая
+  if (currentSeatIndex < currentSeats.length - 1) {                // есть правая
+    menuSeat2.style.display = 'block';
+    renderSeat(currentSeats[currentSeatIndex + 1], menuSeat2);
+  } else {
+    menuSeat2.style.display = 'none';
   }
-} else {
-  menuSeat2.style.display = 'none';
-}
-    
-    prevSeatBtn.disabled = currentSeatIndex === 0;
-    nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
-    
-    updateHotFoodCounter();
-    
-    if (keepFocus && wasFocused && focusedSeat === currentSeats[currentSeatIndex]) {
-        const input = document.querySelector(`.passenger-name[data-seat="${focusedSeat}"]`);
-        if (input) input.focus();
-    }
-    
-    currentLanguage = prevLanguage;
-    updateLanguage();
+
+  prevSeatBtn.disabled = currentSeatIndex === 0;
+  nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
+  updateHotFoodCounter();
 }
 
 function nextSeat() {
@@ -1213,7 +1179,7 @@ function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
     menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
     menuData[itemName].checked = checkbox.checked;
     
-    if (sectionName === 'Горячее блюдо' && !userIsTyping) {
+    if (sectionName === 'Горячее блюдо') {
         if (checkbox.checked && !wasChecked) {
         hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
         } else if (!checkbox.checked && wasChecked) {
