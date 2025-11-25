@@ -880,7 +880,7 @@ input[type="checkbox"]:active {
     <img src="icons/uk.png" alt="English" id="language-flag">
     </div>
     <script>
-        let hotFoodCounts = {};
+let hotFoodCounts = {};
 let currentLanguage = localStorage.getItem('language') || 'ru';
 const menuContainer = document.getElementById('menu-container');
 const menuSeat1 = document.getElementById('menu-seat-1');
@@ -893,7 +893,7 @@ let currentSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
 const menuData = JSON.parse(localStorage.getItem('menuData')) || {};
 const cycles = JSON.parse(localStorage.getItem('cycles')) || [];
 let selectedCycle = cycles[0] || '';
-
+let userIsTyping = false;
 let savedMenus = {};
 currentSeats.forEach(seat => {
     savedMenus[seat] = JSON.parse(localStorage.getItem(`menu_${seat}`)) || {};
@@ -930,6 +930,14 @@ function savePassengerName(input, seat) {
     savedMenus[seat] = savedMenus[seat] || {};
     savedMenus[seat].passengerName = name;
     localStorage.setItem(`menu_${seat}`, JSON.stringify(savedMenus[seat]));
+    
+    const cursorPos = input.selectionStart;
+    
+    input.style.borderColor = 'var(--accent-color)';
+    setTimeout(() => {
+        input.style.borderColor = 'var(--border-color)';
+        input.setSelectionRange(cursorPos, cursorPos);
+    }, 1000);
 }
 
 function initHotFoodCounter(cycleData) {
@@ -972,6 +980,8 @@ function updateHotFoodCounter() {
 }
 
 function updateNavigation(keepFocus = false) {
+    const prevLanguage = currentLanguage;
+    
     const totalPairs = Math.max(1, currentSeats.length - 1);
     const currentPair = Math.min(currentSeatIndex, totalPairs - 1);
     
@@ -979,39 +989,32 @@ function updateNavigation(keepFocus = false) {
     
     initHotFoodCounter(menuData[selectedCycle] || { sections: {} });
     
-    // Сохраняем информацию о фокусе ДО перерисовки
-    const activeElement = document.activeElement;
-    const wasFocused = activeElement && activeElement.classList.contains('passenger-name');
-    const focusedSeat = wasFocused ? activeElement.getAttribute('data-seat') : null;
-    const cursorPosition = wasFocused ? activeElement.selectionStart : 0;
-    
-    // Перерисовываем места БЕЗ вызова updateLanguage() внутри
-    renderSeat(currentSeats[currentSeatIndex], menuSeat1);
-    
-    if (currentSeatIndex < currentSeats.length - 1) {
-        menuSeat2.style.display = 'block';
-        renderSeat(currentSeats[currentSeatIndex + 1], menuSeat2);
-    } else {
-        menuSeat2.style.display = 'none';
-    }
+    const activeInput = document.activeElement;
+    const wasFocused = activeInput && activeInput.classList.contains('passenger-name');
+    const focusedSeat = wasFocused ? activeInput.getAttribute('data-seat') : null;
+
+// правую колонку рисуем ТОЛЬКО если в ней НЕ в фокусе имя
+if (currentSeatIndex < currentSeats.length - 1) {
+  const nextSeat = currentSeats[currentSeatIndex + 1];
+  if (focusedSeat !== nextSeat) {          // <-- новое условие
+    menuSeat2.style.display = 'block';
+    renderSeat(nextSeat, menuSeat2);
+  }                           // иначе оставляем старое содержимое
+} else {
+  menuSeat2.style.display = 'none';
+}
     
     prevSeatBtn.disabled = currentSeatIndex === 0;
     nextSeatBtn.disabled = currentSeatIndex >= currentSeats.length - 2;
     
     updateHotFoodCounter();
     
-    // Восстанавливаем фокус ТОЛЬКО если явно запрошено и только для текущего места
     if (keepFocus && wasFocused && focusedSeat === currentSeats[currentSeatIndex]) {
-        setTimeout(() => {
-            const newInput = document.querySelector(`.passenger-name[data-seat="${focusedSeat}"]`);
-            if (newInput && document.activeElement !== newInput) {
-                newInput.focus();
-                newInput.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        }, 50);
+        const input = document.querySelector(`.passenger-name[data-seat="${focusedSeat}"]`);
+        if (input) input.focus();
     }
     
-    // Обновляем язык отдельно, без перерисовки
+    currentLanguage = prevLanguage;
     updateLanguage();
 }
 
@@ -1071,10 +1074,7 @@ function renderSeat(seatNumber, container) {
     const seatData = savedMenus[seatNumber] || {};
     const cycleData = menuData[selectedCycle] || { sections: {}, subitems: {} };
     
-    // Сохраняем scroll position перед перерисовкой
-    const scrollTop = container.scrollTop;
-    
-    let htmlContent = `
+    container.innerHTML = `
         <h3>${currentLanguage === 'en' ? 'Seat:' : 'Место:'} ${seatNumber}</h3>
         <div class="passenger-name-container">
             <label class="passenger-name-label">${currentLanguage === 'en' ? 'Passenger name:' : 'Имя пассажира:'}</label>
@@ -1082,13 +1082,13 @@ function renderSeat(seatNumber, container) {
                 placeholder="${currentLanguage === 'en' ? 'Enter passenger name' : 'Введите имя пассажира'}" 
                 value="${getPassengerName(seatNumber)}"
                 data-seat="${seatNumber}"
-                oninput="debouncedSavePassengerName(this, '${seatNumber}')"
+                onchange="savePassengerName(this, '${seatNumber}')"
                 aria-label="${currentLanguage === 'en' ? 'Passenger name for seat' : 'Имя пассажира для места'} ${seatNumber}">
         </div>
     `;
 
     if (Object.keys(cycleData.sections).length === 0) {
-        htmlContent += '<p>Меню пустое. Настройте его через редактор.</p>';
+        container.innerHTML += '<p>Меню пустое. Настройте его через редактор.</p>';
     } else {
         Object.keys(cycleData.sections).forEach(sectionName => {
             let translatedSectionName = sectionName;
@@ -1108,27 +1108,22 @@ function renderSeat(seatNumber, container) {
                     default: translatedSectionName = sectionName;
                 }
             }
-            htmlContent += `<h4>${translatedSectionName}</h4>`;
+            container.innerHTML += `<h4>${translatedSectionName}</h4>`;
             cycleData.sections[sectionName].forEach(item => {
-                htmlContent += renderMenuItemHTML(seatNumber, sectionName, item, seatData, cycleData);
+                renderMenuItem(container, seatNumber, sectionName, item, seatData, cycleData);
             });
         });
     }
     
-    container.innerHTML = htmlContent;
-    
-    // Восстанавливаем scroll position
-    container.scrollTop = scrollTop;
-    
     attachEventListeners(container);
 }
 
-function renderMenuItemHTML(seat, sectionName, item, seatData, cycleData) {
+function renderMenuItem(container, seat, sectionName, item, seatData, cycleData) {
     const isChecked = seatData[item]?.checked ? 'checked' : '';
     const selectedSubitems = seatData[item]?.subitems || [];
     const itemSubitems = cycleData.subitems[item] || [];
     
-    return `
+    container.innerHTML += `
         <div class="menu-item-container" data-item="${item}" data-seat="${seat}" data-section="${sectionName}">
             <label class="main-label">
                 <input type="checkbox" ${isChecked}>
@@ -1141,6 +1136,7 @@ function renderMenuItemHTML(seat, sectionName, item, seatData, cycleData) {
                         ${sub}
                     </label>
                 `).join('')}
+                
             </div>
             <div class="selected-subitems">${selectedSubitems.map(sub => `<div>${sub}</div>`).join('')}</div>
         </div>
@@ -1204,11 +1200,11 @@ function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
     menuData[itemName] = menuData[itemName] || { subitems: [], section: sectionName };
     menuData[itemName].checked = checkbox.checked;
     
-    if (sectionName === 'Горячее блюдо') {
+    if (sectionName === 'Горячее блюдо' && !userIsTyping) {
         if (checkbox.checked && !wasChecked) {
-            hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
+        hotFoodCounts[itemName] = (hotFoodCounts[itemName] || 0) + 1;
         } else if (!checkbox.checked && wasChecked) {
-            hotFoodCounts[itemName] = Math.max((hotFoodCounts[itemName] || 0) - 1, 0);
+        hotFoodCounts[itemName] = Math.max((hotFoodCounts[itemName] || 0) - 1, 0);
         }
         updateHotFoodCounter();
     }
@@ -1236,6 +1232,9 @@ function updateCheckbox(checkbox, itemName, currentSeat, sectionName) {
 
 function attachEventListeners(container) {
     const items = container.querySelectorAll('.menu-item-container');
+    let holdTimer;
+    let isScrolling = false;
+    let startX, startY;
 
     items.forEach(item => {
         const mainLabel = item.querySelector('.main-label');
@@ -1265,23 +1264,56 @@ function attachEventListeners(container) {
                 }
             });
         });
+
+        const handleHoldStart = (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            startX = e.clientX || e.touches[0].clientX;
+            startY = e.clientY || e.touches[0].clientY;
+            isScrolling = false;
+            
+            holdTimer = setTimeout(() => {
+                if (!isScrolling) {
+                    item.classList.toggle('active');
+                }
+            }, 800);
+        };
+
+        const handleMove = (e) => {
+            if (!holdTimer || e.target.tagName === 'INPUT') return;
+            const currentX = e.clientX || e.touches[0].clientX;
+            const currentY = e.clientY || e.touches[0].clientY;
+            const diffX = Math.abs(currentX - startX);
+            const diffY = Math.abs(currentY - startY);
+            if (diffX > 5 || diffY > 5) {
+                isScrolling = true;
+                clearTimeout(holdTimer);
+            }
+        };
+
+        const handleHoldEnd = () => {
+            clearTimeout(holdTimer);
+        };
+
+        mainLabel.addEventListener('touchstart', handleHoldStart);
+        mainLabel.addEventListener('touchmove', handleMove);
+        mainLabel.addEventListener('touchend', handleHoldEnd);
+        mainLabel.addEventListener('mousedown', handleHoldStart);
+        mainLabel.addEventListener('mousemove', handleMove);
+        mainLabel.addEventListener('mouseup', handleHoldEnd);
+        mainLabel.addEventListener('mouseleave', handleHoldEnd);
     });
 
-    // Упрощенная обработка полей ввода - убираем все лишние события
     const inputs = container.querySelectorAll('.passenger-name');
-    inputs.forEach(input => {
-        // Только blur для сохранения, убираем focus обработчики
-        input.addEventListener('blur', function() {
-            savePassengerName(this, this.getAttribute('data-seat'));
-        });
+  inputs.forEach(input => {
+    input.addEventListener('focus', (e) => {
+      userIsTyping = true;           // <-- новая строка
+      e.stopPropagation();
     });
+    input.addEventListener('blur', () => {
+      userIsTyping = false;          // <-- новая строка
+    });
+  });
 }
-
-// Debounce функция для сохранения имени
-const debouncedSavePassengerName = debounce((input, seat) => {
-    savePassengerName(input, seat);
-}, 500);
-
 
 function toggleSubitem(checkbox, itemName, subitemText, currentSeat, sectionName) {
     const container = checkbox.closest('.menu-item-container');
@@ -1473,6 +1505,10 @@ function updateLanguage() {
     const prevButton = document.getElementById('prev-seat');
     const nextButton = document.getElementById('next-seat');
     
+    const passengerNameLabels = document.querySelectorAll('.passenger-name-label');
+    
+    const sectionHeaders = document.querySelectorAll('.menu-seat h4');
+    
     if (currentLanguage === 'en') {
         flag.src = 'icons/uk.png';
         flag.alt = 'English';
@@ -1481,6 +1517,29 @@ function updateLanguage() {
         if (saveButton) saveButton.textContent = 'Save';
         if (prevButton) prevButton.textContent = '← Previous';
         if (nextButton) nextButton.textContent = 'Next →';
+        
+        passengerNameLabels.forEach(label => {
+            label.textContent = 'Passenger name:';
+        });
+        
+        sectionHeaders.forEach(header => {
+            const sectionName = header.textContent.trim();
+            switch(sectionName) {
+                case 'Горячее блюдо': header.textContent = 'Hot meal'; break;
+                case 'Холодная закуска': header.textContent = 'Cold appetizer'; break;
+                case 'Салат': header.textContent = 'Salad'; break;
+                case 'Десерт': header.textContent = 'Dessert'; break;
+                case 'Напитки': header.textContent = 'Beverages'; break;
+                case 'Хлеб': header.textContent = 'Bread'; break;
+                case 'Соус': header.textContent = 'Sauce'; break;
+                case 'Алкоголь': header.textContent = 'Alcohol'; break;
+                case 'Напитки б/а': header.textContent = 'Soft drinks'; break;
+                case 'Закуска': header.textContent = 'Snack'; break;
+                case 'будить или нет?': header.textContent = 'Wake up or not?'; break;
+
+            }
+        });
+        
     } else {
         flag.src = 'icons/ru.png';
         flag.alt = 'Russian';
@@ -1489,53 +1548,29 @@ function updateLanguage() {
         if (saveButton) saveButton.textContent = 'Сохранить';
         if (prevButton) prevButton.textContent = '← Предыдущее';
         if (nextButton) nextButton.textContent = 'Следующее →';
-    }
-    
-    // Обновляем только заголовки разделов без полной перерисовки
-    updateSectionHeaders();
-}
+        
+        passengerNameLabels.forEach(label => {
+            label.textContent = 'Имя пассажира:';
+        });
+        
+        sectionHeaders.forEach(header => {
+            const sectionName = header.textContent.trim();
+            switch(sectionName) {
+                case 'Hot meal': header.textContent = 'Горячее блюдо'; break;
+                case 'Cold appetizer': header.textContent = 'Холодная закуска'; break;
+                case 'Salad': header.textContent = 'Салат'; break;
+                case 'Dessert': header.textContent = 'Десерт'; break;
+                case 'Beverages': header.textContent = 'Напитки'; break;
+                case 'Bread': header.textContent = 'Хлеб'; break;
+                case 'Sauce': header.textContent = 'Соус'; break;
+                case 'Alcohol': header.textContent = 'Алкоголь'; break;
+                case 'Soft drinks': header.textContent = 'Напитки б/а'; break;
+                case 'Snack': header.textContent = 'Закуска'; break;
+                case 'Wake up or not': header.textContent = 'будить или нет'; break;
 
-function updateSectionHeaders() {
-    const sectionHeaders = document.querySelectorAll('.menu-seat h4');
-    
-    sectionHeaders.forEach(header => {
-        const sectionName = header.textContent.trim();
-        let translatedName = sectionName;
-        
-        if (currentLanguage === 'en') {
-            switch(sectionName) {
-                case 'Горячее блюдо': translatedName = 'Hot meal'; break;
-                case 'Холодная закуска': translatedName = 'Cold appetizer'; break;
-                case 'Салат': translatedName = 'Salad'; break;
-                case 'Десерт': translatedName = 'Dessert'; break;
-                case 'Напитки': translatedName = 'Beverages'; break;
-                case 'Хлеб': translatedName = 'Bread'; break;
-                case 'Соус': translatedName = 'Sauce'; break;
-                case 'Алкоголь': translatedName = 'Alcohol'; break;
-                case 'Напитки б/а': translatedName = 'Soft drinks'; break;
-                case 'Закуска': translatedName = 'Snack'; break;
-                case 'будить или нет?': translatedName = 'Wake up or not?'; break;
-                default: translatedName = sectionName;
             }
-        } else {
-            switch(sectionName) {
-                case 'Hot meal': translatedName = 'Горячее блюдо'; break;
-                case 'Cold appetizer': translatedName = 'Холодная закуска'; break;
-                case 'Salad': translatedName = 'Салат'; break;
-                case 'Dessert': translatedName = 'Десерт'; break;
-                case 'Beverages': translatedName = 'Напитки'; break;
-                case 'Bread': translatedName = 'Хлеб'; break;
-                case 'Sauce': translatedName = 'Соус'; break;
-                case 'Alcohol': translatedName = 'Алкоголь'; break;
-                case 'Soft drinks': translatedName = 'Напитки б/а'; break;
-                case 'Snack': translatedName = 'Закуска'; break;
-                case 'Wake up or not?': translatedName = 'будить или нет?'; break;
-                default: translatedName = sectionName;
-            }
-        }
-        
-        header.textContent = translatedName;
-    });
+        });
+    }
 }
 
 function saveMenuSettings() {
@@ -1552,11 +1587,14 @@ function saveMenuSettings() {
     updateNavigation();
 }
 
-const debouncedUpdateNavigation = debounce(() => {
-    const activeElement = document.activeElement;
-    const isInputFocused = activeElement && activeElement.classList.contains('passenger-name');
-    updateNavigation(isInputFocused);
-}, 250);
+
+
+function debouncedUpdateNavigation() {
+  if (userIsTyping) return;          // <-- новая строка
+  const activeElement = document.activeElement;
+  const isInputFocused = activeElement && activeElement.classList.contains('passenger-name');
+  updateNavigation(isInputFocused);
+}
 
 window.addEventListener('resize', debouncedUpdateNavigation);
 
